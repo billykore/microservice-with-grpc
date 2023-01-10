@@ -1,0 +1,12 @@
+openapi: 3.0.3
+info:
+  title: API Specification
+  description: API Specification for learning microservice with grpc
+  version: 1.0.0
+  contact:
+    email: billyimmcul2010@gmail.com
+    name: Billy Kore
+servers:
+  - url: 'https://localhost:8080'
+paths:
+

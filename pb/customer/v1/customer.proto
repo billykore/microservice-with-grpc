@@ -1,0 +1,55 @@
+syntax = "proto3";
+
+package customer;
+
+option go_package = "gen/customer/v1";
+
+option java_multiple_files = true;
+option java_package = "io.grpc.examples.customer";
+option java_outer_classname = "CustomerProto";
+
+service Customer {
+  rpc AccountCreation (AccountCreationRequest) returns (AccountCreationResponse);
+}
+
+message AccountCreationRequest {
+  string nik = 1;
+  string name = 2;
+  string pob = 3; // place of birth
+  string dob = 4; // date of birth
+  string address = 5;
+  string profession = 6;
+  Gender gender = 7;
+  Religion religion = 8;
+  MarriageStatus marriage_status = 9;
+  Citizen citizen = 10;
+}
+
+message AccountCreationResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+enum Gender {
+  MALE = 0;
+  FEMALE = 1;
+}
+
+enum Religion {
+  ISLAM = 0;
+  PROTESTANT = 1;
+  CATHOLIC = 2;
+  HINDU = 3;
+  BUDDHA = 4;
+  KONGHUCU = 5;
+}
+
+enum MarriageStatus {
+  NOT_MARRIED = 0;
+  MARRIED = 1;
+}
+
+enum Citizen {
+  WNI = 0; // Indonesian
+  WNA = 1; // Foreign
+}
