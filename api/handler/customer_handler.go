@@ -27,7 +27,7 @@ func (h *CustomerHandler) AccountCreation(ctx *gin.Context) {
 	err := ctx.ShouldBindJSON(body)
 	if err != nil {
 		log.Printf("[handler error] error binding request body to json. %v", err)
-		ctx.JSON(http.StatusBadRequest, &response.CreateAccount{
+		ctx.JSON(http.StatusBadRequest, &response.Customer{
 			ResponseCode:    http.StatusBadRequest,
 			ResponseMessage: "Failed create new account",
 			Error:           "Request body is not valid",
@@ -39,14 +39,14 @@ func (h *CustomerHandler) AccountCreation(ctx *gin.Context) {
 	if err != nil {
 		log.Printf("[grpc response] %v", grpcResponse)
 		log.Printf("[handler error] error create account from grpc service. %v", err)
-		ctx.JSON(http.StatusServiceUnavailable, &response.CreateAccount{
+		ctx.JSON(http.StatusServiceUnavailable, &response.Customer{
 			ResponseCode:    http.StatusServiceUnavailable,
 			ResponseMessage: "Failed create new account",
 			Error:           "Account service unavailable. Please try again later",
 		})
 	} else {
 		log.Printf("[grpc response] %v", grpcResponse)
-		ctx.JSON(http.StatusOK, &response.CreateAccount{
+		ctx.JSON(http.StatusOK, &response.Customer{
 			ResponseCode:    http.StatusOK,
 			ResponseMessage: grpcResponse.GetMessage(),
 		})
