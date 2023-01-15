@@ -11,7 +11,7 @@ func New(cfg *Config) (*gorm.DB, error) {
 	dns := cfg.DatabaseUser + ":" + cfg.DatabasePassword + "@tcp(" + cfg.DatabaseHost + ":" + cfg.DatabasePort + ")/" + cfg.DatabaseName + "?charset=utf8mb4&parseTime=True&loc=Local"
 	db, err := gorm.Open(mysql.Open(dns), &gorm.Config{})
 	if err != nil {
-		log.Fatalf("[database] failed to connect database. %v", err)
+		log.Fatalf("[database error] failed to connect database. %v", err)
 		return nil, err
 	}
 	return db, nil
