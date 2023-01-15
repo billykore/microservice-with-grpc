@@ -10,6 +10,7 @@ option java_outer_classname = "CustomerProto";
 
 service Customer {
   rpc AccountCreation (AccountCreationRequest) returns (AccountCreationResponse);
+  rpc AccountInquiry (InquiryRequest) returns (InquiryResponse);
 }
 
 message AccountCreationRequest {
@@ -28,6 +29,23 @@ message AccountCreationRequest {
 message AccountCreationResponse {
   bool success = 1;
   string message = 2;
+}
+
+message InquiryRequest {
+  string accountNumber = 1;
+}
+
+message InquiryResponse {
+    string cif = 1;
+    string accountNumber = 2;
+    string accountType = 3;
+    string name = 4;
+    string currency = 5;
+    string status = 6;
+    string blocked = 7;
+    string balance = 8;
+    string minimumBalance = 9;
+    string productType = 10;
 }
 
 enum Gender {

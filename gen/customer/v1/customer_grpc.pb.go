@@ -23,6 +23,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type CustomerClient interface {
 	AccountCreation(ctx context.Context, in *AccountCreationRequest, opts ...grpc.CallOption) (*AccountCreationResponse, error)
+	AccountInquiry(ctx context.Context, in *InquiryRequest, opts ...grpc.CallOption) (*InquiryResponse, error)
 }
 
 type customerClient struct {
@@ -42,11 +43,21 @@ func (c *customerClient) AccountCreation(ctx context.Context, in *AccountCreatio
 	return out, nil
 }
 
+func (c *customerClient) AccountInquiry(ctx context.Context, in *InquiryRequest, opts ...grpc.CallOption) (*InquiryResponse, error) {
+	out := new(InquiryResponse)
+	err := c.cc.Invoke(ctx, "/customer.Customer/AccountInquiry", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // CustomerServer is the server API for Customer service.
 // All implementations must embed UnimplementedCustomerServer
 // for forward compatibility
 type CustomerServer interface {
 	AccountCreation(context.Context, *AccountCreationRequest) (*AccountCreationResponse, error)
+	AccountInquiry(context.Context, *InquiryRequest) (*InquiryResponse, error)
 	mustEmbedUnimplementedCustomerServer()
 }
 
@@ -56,6 +67,9 @@ type UnimplementedCustomerServer struct {
 
 func (UnimplementedCustomerServer) AccountCreation(context.Context, *AccountCreationRequest) (*AccountCreationResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AccountCreation not implemented")
+}
+func (UnimplementedCustomerServer) AccountInquiry(context.Context, *InquiryRequest) (*InquiryResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AccountInquiry not implemented")
 }
 func (UnimplementedCustomerServer) mustEmbedUnimplementedCustomerServer() {}
 
@@ -88,6 +102,24 @@ func _Customer_AccountCreation_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Customer_AccountInquiry_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(InquiryRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CustomerServer).AccountInquiry(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/customer.Customer/AccountInquiry",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CustomerServer).AccountInquiry(ctx, req.(*InquiryRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Customer_ServiceDesc is the grpc.ServiceDesc for Customer service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -98,6 +130,10 @@ var Customer_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "AccountCreation",
 			Handler:    _Customer_AccountCreation_Handler,
+		},
+		{
+			MethodName: "AccountInquiry",
+			Handler:    _Customer_AccountInquiry_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
