@@ -7,6 +7,155 @@ info:
     email: billyimmcul2010@gmail.com
     name: Billy Kore
 servers:
-  - url: 'https://localhost:8080'
+  - url: 'https://localhost:8080/api/v1'
+tags:
+  - name: customer
+    description: Customer account operation
 paths:
-
+  /account/create:
+    description: API endpoint for create new customer account
+    post:
+      tags:
+        - customer
+      summary: Create new customer account
+      requestBody:
+        description: Create new customer account request body
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Customer'
+      responses:
+        '200':
+          description: Success create new customer account
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  responseCode:
+                    type: integer
+                    example: 200
+                  responseMessage:
+                    type: string
+                    example: Account creation success
+        '503':
+          description: Failed create new customer account
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  responseCode:
+                    type: integer
+                    example: 503
+                  responseMessage:
+                    type: string
+                    example: Account creation failed
+                  error:
+                    type: string
+                    example: Account service unavailable. Please try again later
+  /account/inquiry/{accountNumber}:
+    description: API endpoint for inquiry customer account
+    get:
+      tags:
+        - customer
+      summary: Inquiry customer account by account number
+      parameters:
+        - name: accountNumber
+          in: path
+          description: Account Number of customer account to return
+          required: true
+          schema:
+            type: string
+            example: '001001000001300'
+      responses:
+        '200':
+          description: Success inquiry customer account
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  responseCode:
+                    type: integer
+                    example: 200
+                  responseMessage:
+                    type: string
+                    example: Customer account inquiry success
+                  data:
+                    type: object
+                    example:
+                      cif: '0000000001'
+                      accountNumber: '001001000001300'
+                      accountType: S
+                      name: John Doe
+                      currency: IDR
+                      status: '1'
+                      blocked: '0'
+                      balance: '10000000.00'
+                      minimumBalance: '0.00'
+                      productType: '000005'
+        '404':
+          description: Customer account not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  responseCode:
+                    type: integer
+                    example: 404
+                  responseMessage:
+                    type: string
+                    example: Customer account not found
+        '503':
+          description: Failed inquiry customer account
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  responseCode:
+                    type: integer
+                    example: 503
+                  responseMessage:
+                    type: string
+                    example: Customer account inquiry failed
+                  error:
+                    type: string
+                    example: Account service unavailable. Please try again later
+components:
+  schemas:
+    Customer:
+      type: object
+      properties:
+        nik:
+          type: string
+          example: '0101013102000001'
+        name:
+          type: string
+          example: John Doe
+        pob:
+          type: string
+          example: Jakarta
+        dob:
+          type: string
+          example: 13/03/2003
+        address:
+          type: string
+          example: Jakarta
+        profession:
+          type: string
+          example: Engineer
+        gender:
+          type: string
+          example: Male
+        religion:
+          type: string
+          example: Catholic
+        marriageStatus:
+          type: string
+          example: NotMarried
+        citizen:
+          type: string
+          example: WNI
