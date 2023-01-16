@@ -1,13 +1,13 @@
 openapi: 3.0.3
 info:
-  title: API Specification
+  title: Microservice with Go and gRPC
   description: API Specification for learning microservice with grpc
   version: 1.0.0
   contact:
     email: billyimmcul2010@gmail.com
     name: Billy Kore
 servers:
-  - url: 'https://localhost:8080/api/v1'
+  - url: 'http://localhost:8080/api/v1'
 tags:
   - name: customer
     description: Customer account operation
@@ -54,7 +54,7 @@ paths:
                   error:
                     type: string
                     example: Account service unavailable. Please try again later
-  /account/inquiry/{accountNumber}:
+  /account/inquiry:
     description: API endpoint for inquiry customer account
     get:
       tags:
@@ -62,12 +62,12 @@ paths:
       summary: Inquiry customer account by account number
       parameters:
         - name: accountNumber
-          in: path
+          in: query
           description: Account Number of customer account to return
           required: true
           schema:
             type: string
-            example: '001001000001300'
+            example: '001001000002300'
       responses:
         '200':
           description: Success inquiry customer account
@@ -85,16 +85,29 @@ paths:
                   data:
                     type: object
                     example:
-                      cif: '0000000001'
-                      accountNumber: '001001000001300'
+                      cif: '0000000003'
+                      accountNumber: '001001000002300'
                       accountType: S
-                      name: John Doe
+                      name: FLORENCE FEDORA AGUSTINA
                       currency: IDR
                       status: '1'
                       blocked: '0'
                       balance: '10000000.00'
                       minimumBalance: '0.00'
                       productType: '000005'
+        '400':
+          description: Missing Query Parameter
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  responseCode:
+                    type: integer
+                    example: 400
+                  responseMessage:
+                    type: string
+                    example: 'Missing query parameter: accountNumber'
         '404':
           description: Customer account not found
           content:
