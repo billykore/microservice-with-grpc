@@ -2,11 +2,11 @@ package main
 
 import (
 	"log"
-	"microservice-with-grpc/api/handler"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
+	"microservice-with-grpc/api/handler"
 	"microservice-with-grpc/api/router"
 	pb "microservice-with-grpc/gen/customer/v1"
 )
