@@ -1,8 +1,8 @@
 package response
 
 type Customer struct {
-	ResponseCode    int    `json:"response_code"`
-	ResponseMessage string `json:"response_message"`
+	ResponseCode    int    `json:"responseCode"`
+	ResponseMessage string `json:"responseMessage"`
 	Error           string `json:"error,omitempty"`
-	Data            string `json:"data,omitempty"`
+	Data            any    `json:"data,omitempty"`
 }
