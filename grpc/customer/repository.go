@@ -12,6 +12,8 @@ type CustomerRepo interface {
 	GetLastCif(ctx context.Context) (string, error)
 	GetLastAccount(ctx context.Context) (string, error)
 	CreateAccount(ctx context.Context, account *Account) error
+	InquiryByAccountNumber(ctx context.Context, accountNumber string) (*Account, error)
+	GetCustomerByAccountNumber(ctx context.Context, accountNumber string) (*Customer, error)
 }
 
 type customerRepo struct {
@@ -58,4 +60,29 @@ func (r *customerRepo) CreateAccount(ctx context.Context, account *Account) erro
 		return err
 	}
 	return nil
+}
+
+func (r *customerRepo) InquiryByAccountNumber(ctx context.Context, accountNumber string) (*Account, error) {
+	var account Account
+	tx := r.DB.WithContext(ctx).First(&account, "account_number = ?", accountNumber)
+	if err := tx.Error; err != nil {
+		log.Printf("[repository error] error inquiry by account number. %v", err)
+		return nil, err
+	}
+	return &account, nil
+}
+
+func (r *customerRepo) GetCustomerByAccountNumber(ctx context.Context, accountNumber string) (*Customer, error) {
+	var customer Customer
+	tx := db.Table("customers").
+		Select("*").
+		Joins("LEFT JOIN accounts ON customers.cif = accounts.cif").
+		Where("accounts.account_number = ?", accountNumber).
+		WithContext(ctx).
+		Scan(&customer)
+	if err := tx.Error; err != nil {
+		log.Printf("[repository error] error get customer by account number. %v", err)
+		return nil, err
+	}
+	return &customer, nil
 }

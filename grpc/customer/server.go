@@ -3,11 +3,11 @@ package main
 import (
 	"context"
 	"log"
-	"microservice-with-grpc/database"
 	"net"
 
 	"google.golang.org/grpc"
 
+	"microservice-with-grpc/database"
 	pb "microservice-with-grpc/gen/customer/v1"
 )
 
@@ -23,7 +23,7 @@ func NewCustomerServer(service CustomerService) pb.CustomerServer {
 func (c *customerServer) AccountCreation(ctx context.Context, in *pb.AccountCreationRequest) (*pb.AccountCreationResponse, error) {
 	err := c.Service.AccountCreation(ctx, in)
 	if err != nil {
-		log.Printf("[server] account creation error: %v", err)
+		log.Printf("[server error] account creation error: %v", err)
 		return &pb.AccountCreationResponse{
 			Success: false,
 			Message: "Account creation failed",
@@ -32,6 +32,26 @@ func (c *customerServer) AccountCreation(ctx context.Context, in *pb.AccountCrea
 	return &pb.AccountCreationResponse{
 		Success: true,
 		Message: "Account creation succeed",
+	}, nil
+}
+
+func (c *customerServer) AccountInquiry(ctx context.Context, in *pb.InquiryRequest) (*pb.InquiryResponse, error) {
+	account, err := c.Service.AccountInquiry(ctx, in.GetAccountNumber())
+	if err != nil {
+		log.Printf("[server error] account inquiry error: %v", err)
+		return &pb.InquiryResponse{}, err
+	}
+	return &pb.InquiryResponse{
+		Cif:            account.Cif,
+		AccountNumber:  account.AccountNumber,
+		AccountType:    account.Type,
+		Name:           account.Customer.Name,
+		Currency:       account.Currency,
+		Status:         account.Status,
+		Blocked:        account.Blocked,
+		Balance:        account.Balance,
+		MinimumBalance: account.MinimumBalance,
+		ProductType:    account.ProductType,
 	}, nil
 }
 

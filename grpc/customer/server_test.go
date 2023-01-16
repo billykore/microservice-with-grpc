@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log"
 	"microservice-with-grpc/database"
 	"net"
@@ -27,6 +28,14 @@ func (m *customerServiceMock) AccountCreation(ctx context.Context, data *pb.Acco
 		return args.Get(0).(error)
 	}
 	return nil
+}
+
+func (m *customerServiceMock) AccountInquiry(ctx context.Context, accountNumber string) (*Account, error) {
+	args := m.Mock.Called(ctx, accountNumber)
+	if args.Get(0) == nil && args.Get(1) != nil {
+		return nil, args.Get(1).(error)
+	}
+	return args.Get(0).(*Account), nil
 }
 
 func server(ctx context.Context, service CustomerService) (pb.CustomerClient, func()) {
@@ -120,7 +129,7 @@ func TestCustomerServerIntegrationTest_AccountCreation(t *testing.T) {
 		Nik:            "0101011509990001",
 		Name:           "Melita Wandriani Baru",
 		Pob:            "Ruteng",
-		Dob:            "15/19/1999",
+		Dob:            "15/09/1999",
 		Address:        "Kupang",
 		Profession:     "Veterinarian",
 		Gender:         pb.Gender_FEMALE,
@@ -161,7 +170,7 @@ func TestCustomerServerIntegrationTest_AccountCreation(t *testing.T) {
 }
 
 func TestCustomerServerIntegrationTest_AccountCreationFailed(t *testing.T) {
-	// customer nik already exist, account creation must fail.
+	// account nik already exist, account creation must fail.
 	in := &pb.AccountCreationRequest{
 		Nik:            "0101011509990001",
 		Name:           "Melita Wandriani Baru",
@@ -204,4 +213,96 @@ func TestCustomerServerIntegrationTest_AccountCreationFailed(t *testing.T) {
 	assert.NotNil(t, out)
 	assert.Equal(t, expectation.Success, out.Success)
 	assert.Equal(t, expectation.Message, out.Message)
+}
+
+func TestCustomerServer_AccountInquiry(t *testing.T) {
+	in := &pb.InquiryRequest{
+		AccountNumber: "001001000001300",
+	}
+
+	expectation := &pb.InquiryResponse{
+		Cif:            "0000000001",
+		AccountNumber:  "001001000001300",
+		AccountType:    "S",
+		Name:           "John Doe",
+		Currency:       "IDR",
+		Status:         "1",
+		Blocked:        "0",
+		Balance:        "100000000.00",
+		MinimumBalance: "0.00",
+		ProductType:    "000005",
+	}
+
+	service := &customerServiceMock{Mock: mock.Mock{}}
+	service.On("AccountInquiry", mock.Anything, in.AccountNumber).Return(expectation, nil)
+
+	ctx := context.Background()
+	customer, closer := server(ctx, service)
+	defer closer()
+
+	out, err := customer.AccountInquiry(ctx, in)
+	fmt.Println(out)
+	assert.NoError(t, err)
+	assert.NotNil(t, out)
+}
+
+func TestCustomerServer_AccountInquiryFailed(t *testing.T) {
+	in := &pb.InquiryRequest{
+		AccountNumber: "001001000001300",
+	}
+
+	service := &customerServiceMock{Mock: mock.Mock{}}
+	service.On("AccountInquiry", mock.Anything, in.AccountNumber).Return(nil, errors.New("account not found"))
+
+	ctx := context.Background()
+	customer, closer := server(ctx, service)
+	defer closer()
+
+	out, err := customer.AccountInquiry(ctx, in)
+	assert.Error(t, err)
+	assert.Nil(t, out)
+}
+
+func TestCustomerServerIntegrationTest_AccountInquiry(t *testing.T) {
+	in := &pb.InquiryRequest{
+		AccountNumber: "001001000002300",
+	}
+
+	expectation := &pb.InquiryResponse{
+		Cif:            "0000000003",
+		AccountNumber:  "001001000002300",
+		AccountType:    "S",
+		Name:           "FLORENCE FEDORA AGUSTINA",
+		Currency:       "IDR",
+		Status:         "1",
+		Blocked:        "0",
+		Balance:        "0.00",
+		MinimumBalance: "0.00",
+		ProductType:    "000005",
+	}
+
+	db, err := database.New(&database.Config{
+		DatabaseUser:     "root",
+		DatabasePassword: "root",
+		DatabaseHost:     "localhost",
+		DatabasePort:     "3306",
+		DatabaseName:     "grpc_microservices",
+	})
+	assert.NoError(t, err)
+	repo := NewCustomerRepo(db)
+	assert.NotNil(t, repo)
+	service := NewCustomerService(repo)
+	assert.NotNil(t, service)
+
+	ctx := context.Background()
+	customer, closer := server(ctx, service)
+	defer closer()
+
+	out, err := customer.AccountInquiry(ctx, in)
+	fmt.Println(out)
+	assert.NoError(t, err)
+	assert.NotNil(t, out)
+	assert.Equal(t, expectation.Cif, out.Cif)
+	assert.Equal(t, expectation.AccountNumber, out.AccountNumber)
+	assert.Equal(t, expectation.Name, out.Name)
 }

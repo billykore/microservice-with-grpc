@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"errors"
-	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -39,7 +38,7 @@ func (m *customerRepoMock) GetLastCif(ctx context.Context) (string, error) {
 func (m *customerRepoMock) GetLastAccount(ctx context.Context) (string, error) {
 	args := m.Mock.Called(ctx)
 	if args.Get(0) == "" && args.Get(1) != nil {
-		return "", errors.New("error get last account")
+		return "", args.Get(1).(error)
 	}
 	return args.Get(0).(string), nil
 }
@@ -47,9 +46,22 @@ func (m *customerRepoMock) GetLastAccount(ctx context.Context) (string, error) {
 func (m *customerRepoMock) CreateAccount(ctx context.Context, account *Account) error {
 	args := m.Mock.Called(ctx, account)
 	if args.Get(0) != nil {
-		return errors.New("error get last account")
+		return args.Get(0).(error)
 	}
 	return nil
+}
+
+func (m *customerRepoMock) InquiryByAccountNumber(ctx context.Context, accountNumber string) (*Account, error) {
+	args := m.Mock.Called(ctx, accountNumber)
+	if args.Get(0) == nil && args.Get(1) != nil {
+		return nil, args.Get(1).(error)
+	}
+	return args.Get(0).(*Account), nil
+}
+
+func (m *customerRepoMock) GetCustomerByAccountNumber(ctx context.Context, accountNumber string) (*Customer, error) {
+	//TODO implement me
+	panic("implement me")
 }
 
 func TestCustomerService_AccountCreation(t *testing.T) {
@@ -151,7 +163,7 @@ func TestCustomerServiceIntegrationTest_AccountCreation(t *testing.T) {
 		"failed": {
 			args: args{
 				ctx: context.Background(),
-				// customer nik already exist, account creation must fail.
+				// account nik already exist, account creation must fail.
 				in: &pb.AccountCreationRequest{
 					Nik:            "0101013108000001",
 					Name:           "Florence Fedora Agustina",
@@ -195,7 +207,138 @@ func TestCustomerServiceIntegrationTest_AccountCreation(t *testing.T) {
 	}
 }
 
-func TestName(t *testing.T) {
-	lastAccount := "001001003935300"
-	fmt.Println(lastAccount[8:12])
+func TestCustomerService_AccountInquiry(t *testing.T) {
+	type args struct {
+		ctx           context.Context
+		accountNumber string
+	}
+
+	type expectation struct {
+		account *Account
+		err     error
+	}
+
+	tests := map[string]struct {
+		args     args
+		expected expectation
+	}{
+		"success": {
+			args: args{
+				ctx:           context.Background(),
+				accountNumber: "001001000001300",
+			},
+			expected: expectation{
+				account: &Account{
+					Cif:              "0000000003",
+					AccountNumber:    "001001000002300",
+					Type:             "S",
+					Balance:          "0.00",
+					MinimumBalance:   "0.00",
+					AvailableBalance: "0.00",
+					Status:           "1",
+					Currency:         "IDR",
+					ProductType:      "000005",
+					Blocked:          "0",
+				},
+				err: nil,
+			},
+		},
+		"notfound": {
+			args: args{
+				ctx:           context.Background(),
+				accountNumber: "001001000001399",
+			},
+			expected: expectation{
+				account: nil,
+				err:     errors.New("account account not found"),
+			},
+		},
+	}
+
+	for scenario, tt := range tests {
+		t.Run(scenario, func(t *testing.T) {
+			repo := &customerRepoMock{Mock: mock.Mock{}}
+			repo.Mock.On("InquiryByAccountNumber", tt.args.ctx, tt.args.accountNumber).Return(tt.expected.account, tt.expected.err)
+			service := NewCustomerService(repo)
+			out, err := service.AccountInquiry(tt.args.ctx, tt.args.accountNumber)
+			assert.Equal(t, tt.expected.account, out)
+			assert.Equal(t, tt.expected.err, err)
+		})
+	}
+}
+
+func TestCustomerServiceIntegrationTest_AccountInquiry(t *testing.T) {
+	type args struct {
+		ctx           context.Context
+		accountNumber string
+	}
+
+	type expectation struct {
+		account *Account
+		err     error
+	}
+
+	tests := map[string]struct {
+		args     args
+		expected expectation
+	}{
+		"success": {
+			args: args{
+				ctx:           context.Background(),
+				accountNumber: "001001000002300",
+			},
+			expected: expectation{
+				account: &Account{
+					Cif:              "0000000003",
+					AccountNumber:    "001001000002300",
+					Type:             "S",
+					Balance:          "0.00",
+					MinimumBalance:   "0.00",
+					AvailableBalance: "0.00",
+					Status:           "1",
+					Currency:         "IDR",
+					ProductType:      "000005",
+					Blocked:          "0",
+				},
+				err: nil,
+			},
+		},
+		"notfound": {
+			args: args{
+				ctx:           context.Background(),
+				accountNumber: "001001000001399",
+			},
+			expected: expectation{
+				account: nil,
+				err:     errors.New("customerService.AccountCreation returns error. please check the logs"),
+			},
+		},
+	}
+
+	db, err := database.New(&database.Config{
+		DatabaseUser:     "root",
+		DatabasePassword: "root",
+		DatabaseHost:     "localhost",
+		DatabasePort:     "3306",
+		DatabaseName:     "grpc_microservices",
+	})
+	assert.NoError(t, err)
+	assert.NotNil(t, db)
+	repo := NewCustomerRepo(db)
+	assert.NotNil(t, repo)
+	service := NewCustomerService(repo)
+	assert.NotNil(t, service)
+
+	for scenario, tt := range tests {
+		t.Run(scenario, func(t *testing.T) {
+			out, err := service.AccountInquiry(tt.args.ctx, tt.args.accountNumber)
+			assert.IsType(t, tt.expected.account, out)
+			assert.Equal(t, tt.expected.err, err)
+			if out != nil {
+				assert.Equal(t, tt.expected.account.AccountNumber, out.AccountNumber)
+				assert.Equal(t, tt.expected.account.Cif, out.Cif)
+				assert.Equal(t, "FLORENCE FEDORA AGUSTINA", out.Customer.Name)
+			}
+		})
+	}
 }

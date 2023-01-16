@@ -78,3 +78,38 @@ func TestCustomerRepo_CreateAccount(t *testing.T) {
 	})
 	assert.NoError(t, err)
 }
+
+func TestCustomerRepo_InquiryByAccountNumber(t *testing.T) {
+	db, err := database.New(&database.Config{
+		DatabaseUser:     "root",
+		DatabasePassword: "root",
+		DatabaseHost:     "localhost",
+		DatabasePort:     "3306",
+		DatabaseName:     "grpc_microservices",
+	})
+	assert.NoError(t, err)
+
+	repo := NewCustomerRepo(db)
+	account, err := repo.InquiryByAccountNumber(context.Background(), "001001000002300")
+	assert.NoError(t, err)
+	assert.NotNil(t, account)
+	assert.IsType(t, &Account{}, account)
+}
+
+func TestCustomerRepo_GetCustomerByAccountNumber(t *testing.T) {
+	db, err := database.New(&database.Config{
+		DatabaseUser:     "root",
+		DatabasePassword: "root",
+		DatabaseHost:     "localhost",
+		DatabasePort:     "3306",
+		DatabaseName:     "grpc_microservices",
+	})
+	assert.NoError(t, err)
+
+	repo := NewCustomerRepo(db)
+	customer, err := repo.GetCustomerByAccountNumber(context.Background(), "001001000002300")
+	assert.NoError(t, err)
+	assert.NotNil(t, customer)
+	assert.IsType(t, &Customer{}, customer)
+	assert.Equal(t, "FLORENCE FEDORA AGUSTINA", customer.Name)
+}

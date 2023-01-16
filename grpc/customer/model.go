@@ -41,16 +41,17 @@ func BuildCustomer(data *pb.AccountCreationRequest) *Customer {
 
 type Account struct {
 	gorm.Model
-	Cif              string `gorm:"unique;not null"`
-	AccountNumber    string `gorm:"unique;not null"`
-	Type             string `gorm:"not null"`
-	Balance          string `gorm:"not null"`
-	MinimumBalance   string `gorm:"not null"`
-	AvailableBalance string `gorm:"not null"`
-	Status           string `gorm:"not null"`
-	Currency         string `gorm:"not null"`
-	ProductType      string `gorm:"not null"`
-	Blocked          string `gorm:"not null;default:0"`
+	Customer         *Customer `gorm:"foreignKey:Cif"`
+	Cif              string    `gorm:"unique;not null"`
+	AccountNumber    string    `gorm:"unique;not null"`
+	Type             string    `gorm:"not null"`
+	Balance          string    `gorm:"not null"`
+	MinimumBalance   string    `gorm:"not null"`
+	AvailableBalance string    `gorm:"not null"`
+	Status           string    `gorm:"not null"`
+	Currency         string    `gorm:"not null"`
+	ProductType      string    `gorm:"not null"`
+	Blocked          string    `gorm:"not null;default:0"`
 }
 
 func BuildAccount(cif, accNumber string, accType AccountType) *Account {
