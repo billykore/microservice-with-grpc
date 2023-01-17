@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"microservice-with-grpc/database"
 	"net"
 	"testing"
 
@@ -15,6 +14,7 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/test/bufconn"
 
+	"microservice-with-grpc/database"
 	pb "microservice-with-grpc/gen/customer/v1"
 )
 

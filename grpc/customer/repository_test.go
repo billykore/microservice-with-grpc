@@ -2,9 +2,11 @@ package main
 
 import (
 	"context"
-	"github.com/stretchr/testify/assert"
-	"microservice-with-grpc/database"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+
+	"microservice-with-grpc/database"
 )
 
 func TestCustomerRepo_CreateCustomer(t *testing.T) {

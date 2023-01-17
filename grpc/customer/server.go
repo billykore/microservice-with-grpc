@@ -55,20 +55,18 @@ func (c *customerServer) AccountInquiry(ctx context.Context, in *pb.InquiryReque
 	}, nil
 }
 
-var (
-	db, _ = database.New(&database.Config{
+func main() {
+	db, _ := database.New(&database.Config{
 		DatabaseUser:     "root",
 		DatabasePassword: "root",
-		DatabaseHost:     "localhost",
+		DatabaseHost:     "172.22.0.1",
 		DatabasePort:     "3306",
 		DatabaseName:     "grpc_microservices",
 	})
-	repo     = NewCustomerRepo(db)
-	service  = NewCustomerService(repo)
-	customer = NewCustomerServer(service)
-)
+	repo := NewCustomerRepo(db)
+	service := NewCustomerService(repo)
+	customer := NewCustomerServer(service)
 
-func main() {
 	lis, err := net.Listen("tcp", ":50051")
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)

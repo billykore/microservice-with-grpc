@@ -74,7 +74,7 @@ func (r *customerRepo) InquiryByAccountNumber(ctx context.Context, accountNumber
 
 func (r *customerRepo) GetCustomerByAccountNumber(ctx context.Context, accountNumber string) (*Customer, error) {
 	var customer Customer
-	tx := db.Table("customers").
+	tx := r.DB.Table("customers").
 		Select("*").
 		Joins("LEFT JOIN accounts ON customers.cif = accounts.cif").
 		Where("accounts.account_number = ?", accountNumber).
