@@ -7,27 +7,25 @@ import (
 	"gorm.io/gorm"
 )
 
-func TestDatabaseConnection(t *testing.T) {
-	db, err := New(&Config{
+func TestMySQLDatabaseConnection(t *testing.T) {
+	db := New(MySQL, &Config{
 		DatabaseUser:     "root",
 		DatabasePassword: "root",
 		DatabaseHost:     "localhost",
 		DatabasePort:     "3306",
 		DatabaseName:     "grpc_microservices",
 	})
-	assert.NoError(t, err)
 	assert.NotNil(t, db)
 }
 
-func TestDatabaseMigration(t *testing.T) {
-	db, err := New(&Config{
+func TestMySQLDatabaseMigration(t *testing.T) {
+	db := New(MySQL, &Config{
 		DatabaseUser:     "root",
 		DatabasePassword: "root",
 		DatabaseHost:     "localhost",
 		DatabasePort:     "3306",
 		DatabaseName:     "grpc_microservices",
 	})
-	assert.NoError(t, err)
 	assert.NotNil(t, db)
 
 	type TestTable1 struct {
@@ -45,7 +43,7 @@ func TestDatabaseMigration(t *testing.T) {
 		Foo string
 		Bar string
 	}
-	err = Migrate(db, &TestTable1{}, &TestTable2{}, &TestTable3{})
+	err := Migrate(db, &TestTable1{}, &TestTable2{}, &TestTable3{})
 	assert.NoError(t, err)
 
 	// drop tables after migration test
@@ -53,19 +51,46 @@ func TestDatabaseMigration(t *testing.T) {
 	assert.NoError(t, err)
 }
 
-func TestDropTestTable(t *testing.T) {
-	db, err := New(&Config{
-		DatabaseUser:     "root",
-		DatabasePassword: "root",
+func TestPostgresDatabaseConnection(t *testing.T) {
+	db := New(Postgres, &Config{
+		DatabaseUser:     "postgres",
+		DatabasePassword: "postgres",
 		DatabaseHost:     "localhost",
-		DatabasePort:     "3306",
-		DatabaseName:     "grpc_microservices",
+		DatabasePort:     "5432",
+		DatabaseName:     "grpc_auth_service",
 	})
-	assert.NoError(t, err)
+	assert.NotNil(t, db)
+}
+
+func TestPostgresDatabaseMigration(t *testing.T) {
+	db := New(Postgres, &Config{
+		DatabaseUser:     "postgres",
+		DatabasePassword: "postgres",
+		DatabaseHost:     "localhost",
+		DatabasePort:     "5432",
+		DatabaseName:     "grpc_auth_service",
+	})
 	assert.NotNil(t, db)
 
-	err = db.Migrator().DropTable("customers")
-	if err != nil {
-		panic(err)
+	type TestTable1 struct {
+		gorm.Model
+		Foo string
+		Bar string
 	}
+	type TestTable2 struct {
+		gorm.Model
+		Foo string
+		Bar string
+	}
+	type TestTable3 struct {
+		gorm.Model
+		Foo string
+		Bar string
+	}
+	err := Migrate(db, &TestTable1{}, &TestTable2{}, &TestTable3{})
+	assert.NoError(t, err)
+
+	// drop tables after migration test
+	err = db.Migrator().DropTable("test_table1", "test_table2", "test_table3")
+	assert.NoError(t, err)
 }
