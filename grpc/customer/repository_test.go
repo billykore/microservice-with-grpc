@@ -10,15 +10,15 @@ import (
 )
 
 func TestCustomerRepo_CreateCustomer(t *testing.T) {
-	db, err := database.New(&database.Config{
+	db := database.New(database.MySQL, &database.Config{
 		DatabaseUser:     "root",
 		DatabasePassword: "root",
 		DatabaseHost:     "localhost",
 		DatabasePort:     "3306",
 		DatabaseName:     "grpc_microservices",
 	})
-	assert.NoError(t, err)
-	err = database.Migrate(db, &Customer{})
+	assert.NotNil(t, db)
+	err := database.Migrate(db, &Customer{})
 
 	repo := NewCustomerRepo(db)
 	err = repo.CreateCustomer(context.Background(), &Customer{
@@ -38,15 +38,15 @@ func TestCustomerRepo_CreateCustomer(t *testing.T) {
 }
 
 func TestCustomerRepo_GetLastCif(t *testing.T) {
-	db, err := database.New(&database.Config{
+	db := database.New(database.MySQL, &database.Config{
 		DatabaseUser:     "root",
 		DatabasePassword: "root",
 		DatabaseHost:     "localhost",
 		DatabasePort:     "3306",
 		DatabaseName:     "grpc_microservices",
 	})
-	assert.NoError(t, err)
-	err = database.Migrate(db, &Customer{})
+	assert.NotNil(t, db)
+	err := database.Migrate(db, &Customer{})
 
 	repo := NewCustomerRepo(db)
 	lastCif, err := repo.GetLastCif(context.Background())
@@ -55,15 +55,15 @@ func TestCustomerRepo_GetLastCif(t *testing.T) {
 }
 
 func TestCustomerRepo_CreateAccount(t *testing.T) {
-	db, err := database.New(&database.Config{
+	db := database.New(database.MySQL, &database.Config{
 		DatabaseUser:     "root",
 		DatabasePassword: "root",
 		DatabaseHost:     "localhost",
 		DatabasePort:     "3306",
 		DatabaseName:     "grpc_microservices",
 	})
-	assert.NoError(t, err)
-	err = database.Migrate(db, &Account{})
+	assert.NotNil(t, db)
+	err := database.Migrate(db, &Account{})
 
 	repo := NewCustomerRepo(db)
 	err = repo.CreateAccount(context.Background(), &Account{
@@ -82,14 +82,14 @@ func TestCustomerRepo_CreateAccount(t *testing.T) {
 }
 
 func TestCustomerRepo_InquiryByAccountNumber(t *testing.T) {
-	db, err := database.New(&database.Config{
+	db := database.New(database.MySQL, &database.Config{
 		DatabaseUser:     "root",
 		DatabasePassword: "root",
 		DatabaseHost:     "localhost",
 		DatabasePort:     "3306",
 		DatabaseName:     "grpc_microservices",
 	})
-	assert.NoError(t, err)
+	assert.NotNil(t, db)
 
 	repo := NewCustomerRepo(db)
 	account, err := repo.InquiryByAccountNumber(context.Background(), "001001000002300")
@@ -99,14 +99,14 @@ func TestCustomerRepo_InquiryByAccountNumber(t *testing.T) {
 }
 
 func TestCustomerRepo_GetCustomerByAccountNumber(t *testing.T) {
-	db, err := database.New(&database.Config{
+	db := database.New(database.MySQL, &database.Config{
 		DatabaseUser:     "root",
 		DatabasePassword: "root",
 		DatabaseHost:     "localhost",
 		DatabasePort:     "3306",
 		DatabaseName:     "grpc_microservices",
 	})
-	assert.NoError(t, err)
+	assert.NotNil(t, db)
 
 	repo := NewCustomerRepo(db)
 	customer, err := repo.GetCustomerByAccountNumber(context.Background(), "001001000002300")

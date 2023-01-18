@@ -26,26 +26,26 @@ func (s *customerService) AccountCreation(ctx context.Context, req *pb.AccountCr
 	customer := BuildCustomer(req)
 	newCif, err := s.createCif(ctx)
 	if err != nil {
-		log.Printf("[service error] account creation error. %v", err)
-		return err
+		log.Printf("[service error] account creation error: %v", err)
+		return errors.New("account creation error")
 	}
 	customer.Cif = newCif
 	err = s.Repo.CreateCustomer(ctx, customer)
 	if err != nil {
-		log.Printf("[service error] account creation error. %v", err)
-		return errors.New("customerService.AccountCreation returns error. please check the logs")
+		log.Printf("[service error] account creation error: %v", err)
+		return errors.New("account creation error")
 	}
 	// create new account number for new account cif.
 	newAccountNumber, err := s.createAccountNumber(ctx, SavingAccount)
 	if err != nil {
-		log.Printf("[service error] account creation error. %v", err)
-		return errors.New("customerService.AccountCreation returns error. please check the logs")
+		log.Printf("[service error] account creation error: %v", err)
+		return errors.New("account creation error")
 	}
 	account := BuildAccount(customer.Cif, newAccountNumber, SavingAccount)
 	err = s.Repo.CreateAccount(ctx, account)
 	if err != nil {
-		log.Printf("[service error] account creation error. %v", err)
-		return errors.New("customerService.AccountCreation returns error. please check the logs")
+		log.Printf("[service error] account creation error: %v", err)
+		return errors.New("account creation error")
 	}
 	// should return no error if account creation is successful.
 	return nil
@@ -54,8 +54,8 @@ func (s *customerService) AccountCreation(ctx context.Context, req *pb.AccountCr
 func (s *customerService) createCif(ctx context.Context) (string, error) {
 	lastCif, err := s.Repo.GetLastCif(ctx)
 	if err != nil {
-		log.Printf("[service error] create new cif error. %v", err)
-		return "", err
+		log.Printf("[service error] create new cif error: %v", err)
+		return "", errors.New("create new cif error")
 	}
 	newCif := BuildNewCif(lastCif)
 	return newCif, nil
@@ -64,8 +64,8 @@ func (s *customerService) createCif(ctx context.Context) (string, error) {
 func (s *customerService) createAccountNumber(ctx context.Context, accType AccountType) (string, error) {
 	lastAccountNumber, err := s.Repo.GetLastAccount(ctx)
 	if err != nil {
-		log.Printf("[service error] create new account number error. %v", err)
-		return "", err
+		log.Printf("[service error] create new account number error: %v", err)
+		return "", errors.New("create new account number error")
 	}
 	var newAccount string
 	switch accType {
@@ -82,13 +82,13 @@ func (s *customerService) createAccountNumber(ctx context.Context, accType Accou
 func (s *customerService) AccountInquiry(ctx context.Context, accountNumber string) (*Account, error) {
 	account, err := s.Repo.InquiryByAccountNumber(ctx, accountNumber)
 	if err != nil {
-		log.Printf("[service error] inquiry account error. %v", err)
-		return nil, errors.New("customerService.AccountCreation returns error. please check the logs")
+		log.Printf("[service error] inquiry account error: %v", err)
+		return nil, errors.New("inquiry account error")
 	}
 	customer, err := s.Repo.GetCustomerByAccountNumber(ctx, accountNumber)
 	if err != nil {
-		log.Printf("[service error] inquiry account error. %v", err)
-		return nil, errors.New("customerService.AccountCreation returns error. please check the logs")
+		log.Printf("[service error] inquiry account error: %v", err)
+		return nil, errors.New("inquiry account error")
 	}
 	account.Customer = customer
 	return account, nil

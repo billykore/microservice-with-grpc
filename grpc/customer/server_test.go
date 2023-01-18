@@ -143,15 +143,15 @@ func TestCustomerServerIntegrationTest_AccountCreation(t *testing.T) {
 		Message: "Account creation succeed",
 	}
 
-	db, err := database.New(&database.Config{
+	db := database.New(database.MySQL, &database.Config{
 		DatabaseUser:     "root",
 		DatabasePassword: "root",
 		DatabaseHost:     "localhost",
 		DatabasePort:     "3306",
 		DatabaseName:     "grpc_microservices",
 	})
-	assert.NoError(t, err)
-	err = database.Migrate(db, &Customer{})
+	assert.NotNil(t, db)
+	err := database.Migrate(db, &Customer{})
 	assert.NoError(t, err)
 	repo := NewCustomerRepo(db)
 	assert.NotNil(t, repo)
@@ -189,15 +189,15 @@ func TestCustomerServerIntegrationTest_AccountCreationFailed(t *testing.T) {
 		Message: "Account creation failed",
 	}
 
-	db, err := database.New(&database.Config{
+	db := database.New(database.MySQL, &database.Config{
 		DatabaseUser:     "root",
 		DatabasePassword: "root",
 		DatabaseHost:     "localhost",
 		DatabasePort:     "3306",
 		DatabaseName:     "grpc_microservices",
 	})
-	assert.NoError(t, err)
-	err = database.Migrate(db, &Customer{})
+	assert.NotNil(t, db)
+	err := database.Migrate(db, &Customer{})
 	assert.NoError(t, err)
 	repo := NewCustomerRepo(db)
 	assert.NotNil(t, repo)
@@ -281,14 +281,14 @@ func TestCustomerServerIntegrationTest_AccountInquiry(t *testing.T) {
 		ProductType:    "000005",
 	}
 
-	db, err := database.New(&database.Config{
+	db := database.New(database.MySQL, &database.Config{
 		DatabaseUser:     "root",
 		DatabasePassword: "root",
 		DatabaseHost:     "localhost",
 		DatabasePort:     "3306",
 		DatabaseName:     "grpc_microservices",
 	})
-	assert.NoError(t, err)
+	assert.NotNil(t, db)
 	repo := NewCustomerRepo(db)
 	assert.NotNil(t, repo)
 	service := NewCustomerService(repo)

@@ -56,7 +56,7 @@ func (c *customerServer) AccountInquiry(ctx context.Context, in *pb.InquiryReque
 }
 
 func main() {
-	db, _ := database.New(&database.Config{
+	db := database.New(database.MySQL, &database.Config{
 		DatabaseUser:     "root",
 		DatabasePassword: "root",
 		DatabaseHost:     "172.22.0.1",
