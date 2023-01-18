@@ -31,7 +31,11 @@ func (r *authRepo) GetUser(ctx context.Context, username string) (*User, error) 
 	return &user, nil
 }
 
-func (r *authRepo) InsertTokenLog(ctx context.Context, log *Log) error {
-	//TODO implement me
-	panic("implement me")
+func (r *authRepo) InsertTokenLog(ctx context.Context, tokenLog *Log) error {
+	tx := r.DB.WithContext(ctx).Table("token_logs").Create(tokenLog)
+	if err := tx.Error; err != nil {
+		log.Printf("[repository error] error insert token log: %v,", err)
+		return errors.New("error insert token log")
+	}
+	return nil
 }

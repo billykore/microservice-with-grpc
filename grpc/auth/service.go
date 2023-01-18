@@ -34,14 +34,23 @@ func (s *authService) GetToken(ctx context.Context, req *Request) (*Token, error
 		log.Printf("[service error] error get token: %v", err)
 		return nil, errors.New("error get token")
 	}
-	token, err := GenerateToken(user.Username)
+	tokenString, err := GenerateToken(user.Username)
 	if err != nil {
 		log.Printf("[service error] error get token: %v", err)
 		return nil, errors.New("error get token")
 	}
-	return &Token{
-		Token:     token,
+	token := &Token{
+		Token:     tokenString,
 		Type:      "Bearer token",
 		ExpiresIn: TokenExpiresTime.Seconds(),
-	}, nil
+	}
+	err = s.Repo.InsertTokenLog(ctx, &Log{
+		Token:          token.Token,
+		User:           user.Username,
+		TokenExpiresIn: token.ExpiresIn,
+	})
+	if err != nil {
+		log.Printf("[service error] failed insert log")
+	}
+	return token, nil
 }

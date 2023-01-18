@@ -23,9 +23,12 @@ func (m *authRepoMock) GetUser(ctx context.Context, username string) (*User, err
 	return args.Get(0).(*User), nil
 }
 
-func (m *authRepoMock) InsertTokenLog(ctx context.Context, log *Log) error {
-	//TODO implement me
-	panic("implement me")
+func (m *authRepoMock) InsertTokenLog(ctx context.Context, tokenLog *Log) error {
+	args := m.Mock.Called(ctx, tokenLog)
+	if args.Get(0) == nil {
+		return args.Get(0).(error)
+	}
+	return nil
 }
 
 func TestAuthService_GetToken(t *testing.T) {

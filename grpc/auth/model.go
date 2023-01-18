@@ -21,8 +21,7 @@ type User struct {
 
 type Log struct {
 	gorm.Model
-	Token        *Token `gorm:"foreignKey:Token;unique;not null"`
-	Date         string `gorm:"not null"`
-	User         string `gorm:"not null"`
-	TokenExpired bool   `gorm:"not null"`
+	Token          string  `gorm:"unique;not null"`
+	User           string  `gorm:"not null"`
+	TokenExpiresIn float64 `gorm:"not null"`
 }
