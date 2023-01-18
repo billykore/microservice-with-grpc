@@ -69,7 +69,7 @@ func (h *CustomerHandler) AccountInquiry(ctx *gin.Context) {
 		log.Printf("[customer grpc response] %v", grpcResponse)
 		log.Printf("[handler error] error inquiry account from grpc service. %v", err)
 		ctx.JSON(http.StatusNotFound, &response.Customer{
-			ResponseCode:    http.StatusServiceUnavailable,
+			ResponseCode:    http.StatusNotFound,
 			ResponseMessage: "Failed inquiry account",
 			Error:           "Account not found",
 		})
