@@ -3,6 +3,11 @@ package main
 import (
 	"context"
 	"log"
+	"microservice-with-grpc/database"
+	"net"
+
+	"google.golang.org/grpc"
+
 	pb "microservice-with-grpc/gen/auth/v1"
 )
 
@@ -31,4 +36,28 @@ func (a *authServer) GetToken(ctx context.Context, in *pb.TokenRequest) (*pb.Tok
 		TokenType: token.Type,
 		ExpiredAt: token.ExpiresIn,
 	}, nil
+}
+
+func main() {
+	db := database.New(database.Postgres, &database.Config{
+		DatabaseUser:     "postgres",
+		DatabasePassword: "postgres",
+		DatabaseHost:     "localhost",
+		DatabasePort:     "5432",
+		DatabaseName:     "grpc_auth_service",
+	})
+	repo := NewAuthRepo(db)
+	service := NewAuthService(repo)
+	auth := NewAuthServer(service)
+
+	lis, err := net.Listen("tcp", ":50052")
+	if err != nil {
+		log.Fatalf("failed to listen: %v", err)
+	}
+	s := grpc.NewServer()
+	pb.RegisterAuthServer(s, auth)
+	log.Printf("server listening at %v", lis.Addr())
+	if err = s.Serve(lis); err != nil {
+		log.Fatalf("failed to serve: %v", err)
+	}
 }

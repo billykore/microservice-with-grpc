@@ -269,7 +269,7 @@ func TestCustomerServerIntegrationTest_AccountInquiry(t *testing.T) {
 	}
 
 	expectation := &pb.InquiryResponse{
-		Cif:            "0000000003",
+		Cif:            "0000000002",
 		AccountNumber:  "001001000002300",
 		AccountType:    "S",
 		Name:           "FLORENCE FEDORA AGUSTINA",
