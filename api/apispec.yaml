@@ -9,9 +9,75 @@ info:
 servers:
   - url: 'http://localhost:8080/api/v1'
 tags:
+  - name: auth
+    description: Authorization operation
   - name: customer
     description: Customer account operation
 paths:
+  /auth/token:
+    description: API endpoint for get access token
+    post:
+      tags:
+        - auth
+      summary: Get access token
+      requestBody:
+        description: Get token request
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenRequest'
+      responses:
+        '200':
+          description: Success get token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  responseCode:
+                    type: integer
+                    example: 200
+                  responseMessage:
+                    type: string
+                    example: Success get token
+                  data:
+                    type: object
+                    example:
+                      token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyIiwiZXhwIjoxNjc0MDQ0MTY5LCJpYXQiOjE2NzQwNDMyNjl9.JINtov_hySXKiPoJ8_mst3YbCEla0KCW5aZynD7md4g'
+                      tokenType: Bearer token
+                      expiresIn: 900
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  responseCode:
+                    type: integer
+                    example: 400
+                  responseMessage:
+                    type: string
+                    example: Failed get token
+                  error:
+                    type: string
+                    example: Unsupported grant type
+        '401':
+          description: Unauthorized request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  responseCode:
+                    type: integer
+                    example: 401
+                  responseMessage:
+                    type: string
+                    example: Failed get token
+                  error:
+                    type: string
+                    example: Invalid username or password
   /account/create:
     description: API endpoint for create new customer account
     post:
@@ -139,6 +205,18 @@ paths:
                     example: Account service unavailable. Please try again later
 components:
   schemas:
+    TokenRequest:
+      type: object
+      properties:
+        username:
+          type: string
+          example: oyenmakanikan
+        password:
+          type: string
+          example: very_secret_password_duh
+        grantType:
+          type: string
+          example: password
     Customer:
       type: object
       properties:

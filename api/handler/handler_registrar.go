@@ -1,7 +1,9 @@
 package handler
 
 // Handlers are struct to put all the api handler that will be use by the router.
+//
+// Register api handlers here.
 type Handlers struct {
-	// register api handlers here.
+	Auth     *AuthHandler
 	Customer *CustomerHandler
 }

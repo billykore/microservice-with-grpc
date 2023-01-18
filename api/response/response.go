@@ -1,6 +1,6 @@
 package response
 
-type Customer struct {
+type Response struct {
 	ResponseCode    int    `json:"responseCode"`
 	ResponseMessage string `json:"responseMessage"`
 	Error           string `json:"error,omitempty"`
