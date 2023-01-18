@@ -13,8 +13,8 @@ import (
 )
 
 func main() {
-	authConn, err := grpc.Dial("localhost:50052", grpc.WithTransportCredentials(insecure.NewCredentials())) // local
-	//authConn, err := grpc.Dial("172.22.0.1:50052", grpc.WithTransportCredentials(insecure.NewCredentials())) // docker
+	//authConn, err := grpc.Dial("localhost:50052", grpc.WithTransportCredentials(insecure.NewCredentials())) // local
+	authConn, err := grpc.Dial("172.22.0.1:50052", grpc.WithTransportCredentials(insecure.NewCredentials())) // docker
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
@@ -22,8 +22,8 @@ func main() {
 	authClient := authpb.NewAuthClient(authConn)
 	auth := handler.NewAuthHandler(authClient)
 
-	clientConn, err := grpc.Dial("localhost:50051", grpc.WithTransportCredentials(insecure.NewCredentials())) // local
-	//clientConn, err := grpc.Dial("172.22.0.1:50051", grpc.WithTransportCredentials(insecure.NewCredentials())) //docker
+	//clientConn, err := grpc.Dial("localhost:50051", grpc.WithTransportCredentials(insecure.NewCredentials())) // local
+	clientConn, err := grpc.Dial("172.22.0.1:50051", grpc.WithTransportCredentials(insecure.NewCredentials())) //docker
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
