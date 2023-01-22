@@ -8,11 +8,11 @@
       <jdbc-url>jdbc:mysql://localhost:3306/grpc_microservices</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
-    <data-source source="LOCAL" name="grpc_auth_service@localhost" uuid="052064bf-9177-42e5-815d-57867d13fdd9">
+    <data-source source="LOCAL" name="grpc_payment_service@localhost" uuid="052064bf-9177-42e5-815d-57867d13fdd9">
       <driver-ref>postgresql</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.postgresql.Driver</jdbc-driver>
-      <jdbc-url>jdbc:postgresql://localhost:5432/grpc_auth_service</jdbc-url>
+      <jdbc-url>jdbc:postgresql://localhost:5432/grpc_payment_service</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
   </component>
