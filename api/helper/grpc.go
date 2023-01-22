@@ -2,34 +2,36 @@ package helper
 
 import (
 	"microservice-with-grpc/api/request"
-	pb "microservice-with-grpc/gen/customer/v1"
+
+	customerpb "microservice-with-grpc/gen/customer/v1"
+	paymentpb "microservice-with-grpc/gen/payment/v1"
 )
 
 var (
-	genderValue = map[string]pb.Gender{
-		"Male":   pb.Gender_MALE,
-		"Female": pb.Gender_FEMALE,
+	genderValue = map[string]customerpb.Gender{
+		"Male":   customerpb.Gender_MALE,
+		"Female": customerpb.Gender_FEMALE,
 	}
-	religionValue = map[string]pb.Religion{
-		"Islam":      pb.Religion_ISLAM,
-		"Protestant": pb.Religion_PROTESTANT,
-		"Catholic":   pb.Religion_CATHOLIC,
-		"Hindu":      pb.Religion_HINDU,
-		"Buddha":     pb.Religion_BUDDHA,
-		"Konghucu":   pb.Religion_KONGHUCU,
+	religionValue = map[string]customerpb.Religion{
+		"Islam":      customerpb.Religion_ISLAM,
+		"Protestant": customerpb.Religion_PROTESTANT,
+		"Catholic":   customerpb.Religion_CATHOLIC,
+		"Hindu":      customerpb.Religion_HINDU,
+		"Buddha":     customerpb.Religion_BUDDHA,
+		"Konghucu":   customerpb.Religion_KONGHUCU,
 	}
-	marriageStatusValue = map[string]pb.MarriageStatus{
-		"NotMarried": pb.MarriageStatus_NOT_MARRIED,
-		"Married":    pb.MarriageStatus_MARRIED,
+	marriageStatusValue = map[string]customerpb.MarriageStatus{
+		"NotMarried": customerpb.MarriageStatus_NOT_MARRIED,
+		"Married":    customerpb.MarriageStatus_MARRIED,
 	}
-	citizenValue = map[string]pb.Citizen{
-		"WNI": pb.Citizen_WNI,
-		"WNA": pb.Citizen_WNA,
+	citizenValue = map[string]customerpb.Citizen{
+		"WNI": customerpb.Citizen_WNI,
+		"WNA": customerpb.Citizen_WNA,
 	}
 )
 
-func BuildGrpcRequest(req *request.CreateAccount) *pb.AccountCreationRequest {
-	return &pb.AccountCreationRequest{
+func BuildCustomerGrpcRequest(req *request.CreateAccount) *customerpb.AccountCreationRequest {
+	return &customerpb.AccountCreationRequest{
 		Nik:            req.Nik,
 		Name:           req.Name,
 		Pob:            req.Pob,
@@ -40,5 +42,15 @@ func BuildGrpcRequest(req *request.CreateAccount) *pb.AccountCreationRequest {
 		Religion:       religionValue[req.Religion],
 		MarriageStatus: marriageStatusValue[req.MarriageStatus],
 		Citizen:        citizenValue[req.Citizen],
+	}
+}
+
+func BuildQrisPaymentGrpcRequest(req *request.QrisPayment) *paymentpb.QrisRequest {
+	return &paymentpb.QrisRequest{
+		MerchantId:         req.MerchantId,
+		TrxNumber:          req.TrxNumber,
+		AccountSource:      req.AccountSource,
+		AccountDestination: req.AccountDestination,
+		Amount:             req.Amount,
 	}
 }
