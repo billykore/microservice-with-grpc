@@ -5,6 +5,7 @@ import (
 	"errors"
 	"log"
 	"microservice-with-grpc/database"
+	"microservice-with-grpc/entity"
 	"net"
 	"testing"
 
@@ -21,12 +22,12 @@ type authServiceMock struct {
 	mock.Mock
 }
 
-func (m *authServiceMock) GetToken(ctx context.Context, req *Request) (*Token, error) {
+func (m *authServiceMock) GetToken(ctx context.Context, req *Request) (*entity.Token, error) {
 	args := m.Mock.Called(ctx, req)
 	if args.Get(0) == nil && args.Get(1) != nil {
 		return nil, errors.New("failed to create token")
 	}
-	return args.Get(0).(*Token), nil
+	return args.Get(0).(*entity.Token), nil
 }
 
 func server(ctx context.Context, service AuthService) (pb.AuthClient, func()) {
@@ -75,7 +76,7 @@ func TestAuthServer_GetToken(t *testing.T) {
 	}
 
 	service := &authServiceMock{Mock: mock.Mock{}}
-	service.On("GetToken", mock.Anything, mock.Anything).Return(&Token{
+	service.On("GetToken", mock.Anything, mock.Anything).Return(&entity.Token{
 		Token:     "example-token-777",
 		Type:      "Bearer token",
 		ExpiresIn: 900,

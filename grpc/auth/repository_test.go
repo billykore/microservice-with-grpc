@@ -2,9 +2,12 @@ package main
 
 import (
 	"context"
-	"github.com/stretchr/testify/assert"
-	"microservice-with-grpc/database"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+
+	"microservice-with-grpc/database"
+	"microservice-with-grpc/entity"
 )
 
 func TestAuthRepo_GetUser(t *testing.T) {
@@ -33,14 +36,14 @@ func TestAuthRepo_InsertTokenLog(t *testing.T) {
 		DatabaseName:     "grpc_auth_service",
 	})
 	assert.NotNil(t, db)
-	err := db.Table("token_logs").AutoMigrate(&Log{})
+	err := db.Table("token_logs").AutoMigrate(&entity.TokenLog{})
 	assert.NoError(t, err)
 	repo := NewAuthRepo(db)
 	assert.NotNil(t, repo)
 
 	token, err := GenerateToken("user")
 	assert.NoError(t, err)
-	err = repo.InsertTokenLog(context.Background(), &Log{
+	err = repo.InsertTokenLog(context.Background(), &entity.TokenLog{
 		Token:          token,
 		User:           "user",
 		TokenExpiresIn: TokenExpiresTime.Seconds(),

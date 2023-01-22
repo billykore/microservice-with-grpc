@@ -3,12 +3,15 @@ package main
 import (
 	"context"
 	"errors"
-	"golang.org/x/crypto/bcrypt"
 	"log"
+
+	"golang.org/x/crypto/bcrypt"
+
+	"microservice-with-grpc/entity"
 )
 
 type AuthService interface {
-	GetToken(ctx context.Context, req *Request) (*Token, error)
+	GetToken(ctx context.Context, req *Request) (*entity.Token, error)
 }
 
 type authService struct {
@@ -19,7 +22,7 @@ func NewAuthService(repo AuthRepo) AuthService {
 	return &authService{Repo: repo}
 }
 
-func (s *authService) GetToken(ctx context.Context, req *Request) (*Token, error) {
+func (s *authService) GetToken(ctx context.Context, req *Request) (*entity.Token, error) {
 	if req.GrantType != "password" {
 		log.Printf("[service error] invalid grant type: %v", req.GrantType)
 		return nil, errors.New("invalid grant type")
@@ -39,12 +42,12 @@ func (s *authService) GetToken(ctx context.Context, req *Request) (*Token, error
 		log.Printf("[service error] error get token: %v", err)
 		return nil, errors.New("error get token")
 	}
-	token := &Token{
+	token := &entity.Token{
 		Token:     tokenString,
 		Type:      "Bearer token",
 		ExpiresIn: TokenExpiresTime.Seconds(),
 	}
-	err = s.Repo.InsertTokenLog(ctx, &Log{
+	err = s.Repo.InsertTokenLog(ctx, &entity.TokenLog{
 		Token:          token.Token,
 		User:           user.Username,
 		TokenExpiresIn: token.ExpiresIn,

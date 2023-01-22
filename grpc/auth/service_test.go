@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"errors"
+	"microservice-with-grpc/entity"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -15,15 +16,15 @@ type authRepoMock struct {
 	mock.Mock
 }
 
-func (m *authRepoMock) GetUser(ctx context.Context, username string) (*User, error) {
+func (m *authRepoMock) GetUser(ctx context.Context, username string) (*entity.User, error) {
 	args := m.Mock.Called(ctx, username)
 	if args.Get(0) == false && args.Get(1) != nil {
 		return nil, args.Get(1).(error)
 	}
-	return args.Get(0).(*User), nil
+	return args.Get(0).(*entity.User), nil
 }
 
-func (m *authRepoMock) InsertTokenLog(ctx context.Context, tokenLog *Log) error {
+func (m *authRepoMock) InsertTokenLog(ctx context.Context, tokenLog *entity.TokenLog) error {
 	args := m.Mock.Called(ctx, tokenLog)
 	if args.Get(0) == nil {
 		return args.Get(0).(error)
@@ -33,7 +34,7 @@ func (m *authRepoMock) InsertTokenLog(ctx context.Context, tokenLog *Log) error 
 
 func TestAuthService_GetToken(t *testing.T) {
 	type repoOut struct {
-		user *User
+		user *entity.User
 		err  error
 	}
 
@@ -43,7 +44,7 @@ func TestAuthService_GetToken(t *testing.T) {
 	}
 
 	type expectation struct {
-		token *Token
+		token *entity.Token
 		err   error
 	}
 
@@ -54,7 +55,7 @@ func TestAuthService_GetToken(t *testing.T) {
 	}{
 		"success": {
 			repoOut: repoOut{
-				user: &User{
+				user: &entity.User{
 					Username: "user",
 					Password: "$2a$10$EkaaT.WwU4y5kRnOdXpoKuBg7IBTwVr2ixlcPS7DjVKnPHytG5X4K",
 				},
@@ -69,7 +70,7 @@ func TestAuthService_GetToken(t *testing.T) {
 				},
 			},
 			expected: expectation{
-				token: &Token{
+				token: &entity.Token{
 					Token:     "",
 					Type:      "Bearer token",
 					ExpiresIn: 900,
@@ -97,17 +98,17 @@ func TestAuthService_GetToken(t *testing.T) {
 		},
 	}
 
-	for scenario, tt := range tests {
+	for scenario, test := range tests {
 		t.Run(scenario, func(t *testing.T) {
 			repo := &authRepoMock{Mock: mock.Mock{}}
-			repo.On("GetUser", tt.args.ctx, tt.args.req.Username).Return(tt.repoOut.user, tt.repoOut.err)
+			repo.On("GetUser", test.args.ctx, test.args.req.Username).Return(test.repoOut.user, test.repoOut.err)
 			service := NewAuthService(repo)
-			out, err := service.GetToken(tt.args.ctx, tt.args.req)
-			assert.Equal(t, tt.expected.err, err)
+			out, err := service.GetToken(test.args.ctx, test.args.req)
+			assert.Equal(t, test.expected.err, err)
 			if out != nil {
 				assert.NotEmpty(t, out.Token)
-				assert.Equal(t, tt.expected.token.Type, out.Type)
-				assert.Equal(t, tt.expected.token.ExpiresIn, out.ExpiresIn)
+				assert.Equal(t, test.expected.token.Type, out.Type)
+				assert.Equal(t, test.expected.token.ExpiresIn, out.ExpiresIn)
 			}
 		})
 	}
@@ -120,7 +121,7 @@ func TestAuthServiceIntegrationTest_GetToken(t *testing.T) {
 	}
 
 	type expectation struct {
-		token *Token
+		token *entity.Token
 		err   error
 	}
 
@@ -138,7 +139,7 @@ func TestAuthServiceIntegrationTest_GetToken(t *testing.T) {
 				},
 			},
 			expected: expectation{
-				token: &Token{
+				token: &entity.Token{
 					Token:     "",
 					Type:      "Bearer token",
 					ExpiresIn: 900,
@@ -203,14 +204,14 @@ func TestAuthServiceIntegrationTest_GetToken(t *testing.T) {
 	service := NewAuthService(repo)
 	assert.NotNil(t, service)
 
-	for scenario, tt := range tests {
+	for scenario, test := range tests {
 		t.Run(scenario, func(t *testing.T) {
-			out, err := service.GetToken(tt.args.ctx, tt.args.req)
-			assert.Equal(t, tt.expected.err, err)
+			out, err := service.GetToken(test.args.ctx, test.args.req)
+			assert.Equal(t, test.expected.err, err)
 			if out != nil {
 				assert.NotEmpty(t, out.Token)
-				assert.Equal(t, tt.expected.token.Type, out.Type)
-				assert.Equal(t, tt.expected.token.ExpiresIn, out.ExpiresIn)
+				assert.Equal(t, test.expected.token.Type, out.Type)
+				assert.Equal(t, test.expected.token.ExpiresIn, out.ExpiresIn)
 			}
 		})
 	}
