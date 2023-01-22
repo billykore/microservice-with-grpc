@@ -13,6 +13,8 @@ tags:
     description: Authorization operation
   - name: customer
     description: Customer account operation
+  - name: payment
+    description: Payment operation
 paths:
   /auth/token:
     description: API endpoint for get access token
@@ -105,7 +107,7 @@ paths:
                     type: string
                     example: Account creation success
         '503':
-          description: Failed create new customer account
+          description: Account service unavailable
           content:
             application/json:
               schema:
@@ -188,7 +190,7 @@ paths:
                     type: string
                     example: Customer account not found
         '503':
-          description: Failed inquiry customer account
+          description: Account service unavailable
           content:
             application/json:
               schema:
@@ -203,6 +205,64 @@ paths:
                   error:
                     type: string
                     example: Account service unavailable. Please try again later
+  /payment/qris:
+    description: API endpoint for qris payment
+    post:
+      tags:
+        - payment
+      summary: Qris payment
+      requestBody:
+        description: Qris payment request body
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QrisRequest'
+      responses:
+        '200':
+          description: Qris payment successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  responseCode:
+                    type: integer
+                    example: 200
+                  responseMessage:
+                    type: string
+                    example: Qris payment successful
+        '404':
+          description: Invalid request body
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  responseCode:
+                    type: integer
+                    example: 404
+                  responseMessage:
+                    type: string
+                    example: Failed to process qris payment
+                  error:
+                    type: string
+                    example: Request body is not valid
+        '503':
+          description: Qris payment service unavailable
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  responseCode:
+                    type: integer
+                    example: 503
+                  responseMessage:
+                    type: string
+                    example: Failed to process qris payment
+                  error:
+                    type: string
+                    example: Payment service unavailable. Please try again later
 components:
   schemas:
     TokenRequest:
@@ -250,3 +310,21 @@ components:
         citizen:
           type: string
           example: WNI
+    QrisRequest:
+      type: object
+      properties:
+        merchantId:
+          type: string
+          example: 'M-001'
+        trxNumber:
+          type: string
+          example: '0000001'
+        accountSource:
+          type: string
+          example: '001001000001300'
+        accountDestination:
+          type: string
+          example: '001001000002300'
+        amount:
+          type: string
+          example: '500000'
