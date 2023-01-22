@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package payment;
+
+option go_package = "gen/payment/v1";
+
+option java_multiple_files = true;
+option java_package = "io.grpc.examples.payment";
+option java_outer_classname = "PaymentProto";
+
+service Payment {
+  rpc Qris (QrisRequest) returns (QrisResponse);
+}
+
+message QrisRequest {
+  string merchantId = 1;
+  string trxNumber = 2;
+  string accountSource = 3;
+  string accountDestination = 4;
+  string amount = 5;
+}
+
+message QrisResponse {
+  bool success = 1;
+}
