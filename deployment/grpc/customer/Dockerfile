@@ -6,6 +6,8 @@ COPY pb/customer/v1 ./pb/customer/v1
 COPY gen/customer/v1 ./gen/customer/v1
 COPY grpc/customer ./grpc/customer
 COPY database ./database
+COPY entity ./entity
+COPY internal ./internal
 
 COPY go.mod ./
 COPY go.sum ./

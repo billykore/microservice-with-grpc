@@ -6,6 +6,8 @@ COPY pb/auth/v1 ./pb/auth/v1
 COPY gen/auth/v1 ./gen/auth/v1
 COPY grpc/auth ./grpc/auth
 COPY database ./database
+COPY entity ./entity
+COPY internal ./internal
 
 COPY go.mod ./
 COPY go.sum ./
