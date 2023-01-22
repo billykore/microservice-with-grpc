@@ -43,7 +43,7 @@ func main() {
 	db := database.New(database.Postgres, &database.Config{
 		DatabaseUser:     "postgres",
 		DatabasePassword: "postgres",
-		DatabaseHost:     "localhost",
+		DatabaseHost:     "172.22.0.1",
 		DatabasePort:     "5432",
 		DatabaseName:     "grpc_payment_service",
 	})

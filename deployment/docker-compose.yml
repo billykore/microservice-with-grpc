@@ -1,0 +1,38 @@
+version: "3.9"
+
+services:
+  auth-grpc-server:
+    container_name: auth-grpc-server
+    image: auth-grpc-app:1.1.0
+    ports:
+      - "50052:50052"
+    networks:
+      - grpc-microservices-net
+  customer-grpc-server:
+    container_name: customer-grpc-server
+    image: customer-grpc-app:1.1.0
+    ports:
+      - "50051:50051"
+    networks:
+      - grpc-microservices-net
+  payment-grpc-server:
+    container_name: payment-grpc-server
+    image: payment-grpc-app:1.0.0
+    ports:
+      - "50053:50053"
+    networks:
+      - grpc-microservices-net
+  grpc-rest-api:
+    container_name: grpc-rest-api
+    image: grpc-rest-api:1.1.0
+    ports:
+      - "8080:8080"
+    depends_on:
+      - customer-grpc-server
+    networks:
+      - grpc-microservices-net
+
+networks:
+  grpc-microservices-net:
+    name: grpc-microservices-net
+    external: true

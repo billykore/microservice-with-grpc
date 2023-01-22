@@ -3,8 +3,7 @@ FROM golang:1.19-alpine AS build
 WORKDIR $GOPATH/src/microservice-with-grpc
 
 COPY api ./api
-COPY gen/customer/v1 ./gen/customer/v1
-COPY gen/auth/v1 ./gen/auth/v1
+COPY gen ./gen
 
 COPY go.mod ./
 COPY go.sum ./
