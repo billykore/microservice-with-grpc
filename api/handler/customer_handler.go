@@ -34,11 +34,11 @@ func (h *CustomerHandler) AccountCreation(ctx *gin.Context) {
 		})
 		return
 	}
-	grpcRequest := helper.BuildGrpcRequest(body)
+	grpcRequest := helper.BuildCustomerGrpcRequest(body)
 	grpcResponse, err := h.Client.AccountCreation(ctx, grpcRequest)
 	log.Printf("[customer grpc response] %v", grpcResponse)
 	if err != nil {
-		log.Printf("[handler error] error create account from grpc service: %v", err)
+		log.Printf("[handler error] error create account from customer grpc service: %v", err)
 		ctx.JSON(http.StatusServiceUnavailable, &response.Response{
 			ResponseCode:    http.StatusServiceUnavailable,
 			ResponseMessage: "Failed create new account",
@@ -55,7 +55,7 @@ func (h *CustomerHandler) AccountCreation(ctx *gin.Context) {
 func (h *CustomerHandler) AccountInquiry(ctx *gin.Context) {
 	accountNumber := ctx.Query("accountNumber")
 	if accountNumber == "" {
-		log.Printf("[handle error] missing query parameter: accountNumber")
+		log.Println("[handle error] missing query parameter: accountNumber")
 		ctx.JSON(http.StatusBadRequest, response.Response{
 			ResponseCode:    http.StatusBadRequest,
 			ResponseMessage: "Failed inquiry account",
@@ -66,7 +66,7 @@ func (h *CustomerHandler) AccountInquiry(ctx *gin.Context) {
 	grpcResponse, err := h.Client.AccountInquiry(ctx, &pb.InquiryRequest{AccountNumber: accountNumber})
 	log.Printf("[customer grpc response] %v", grpcResponse)
 	if err != nil {
-		log.Printf("[handler error] error inquiry account from grpc service: %v", err)
+		log.Printf("[handler error] error inquiry account from customer grpc service: %v", err)
 		ctx.JSON(http.StatusNotFound, &response.Response{
 			ResponseCode:    http.StatusNotFound,
 			ResponseMessage: "Failed inquiry account",
