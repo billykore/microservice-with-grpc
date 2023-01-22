@@ -10,6 +10,7 @@ import (
 
 	"microservice-with-grpc/database"
 	pb "microservice-with-grpc/gen/customer/v1"
+	"microservice-with-grpc/internal"
 )
 
 type customerRepoMock struct {
@@ -109,19 +110,19 @@ func TestCustomerService_AccountCreation(t *testing.T) {
 		},
 	}
 
-	for scenario, tt := range tests {
+	for scenario, test := range tests {
 		t.Run(scenario, func(t *testing.T) {
-			customer := BuildCustomer(tt.args.in)
-			customer.Cif = BuildNewCif("0000011111")
+			customer := BuildCustomer(test.args.in)
+			customer.Cif = internal.BuildNewCif("0000011111")
 			repo := &customerRepoMock{Mock: mock.Mock{}}
-			repo.Mock.On("CreateCustomer", tt.args.ctx, customer).Return(tt.expected.err)
-			repo.Mock.On("GetLastCif", tt.args.ctx).Return("0000011111", nil)
-			repo.Mock.On("GetLastAccount", tt.args.ctx).Return("001001001111300", nil)
-			repo.Mock.On("CreateAccount", tt.args.ctx, mock.Anything).Return(nil)
+			repo.Mock.On("CreateCustomer", test.args.ctx, customer).Return(test.expected.err)
+			repo.Mock.On("GetLastCif", test.args.ctx).Return("0000011111", nil)
+			repo.Mock.On("GetLastAccount", test.args.ctx).Return("001001001111300", nil)
+			repo.Mock.On("CreateAccount", test.args.ctx, mock.Anything).Return(nil)
 			service := NewCustomerService(repo)
-			out := service.AccountCreation(tt.args.ctx, tt.args.in)
+			out := service.AccountCreation(test.args.ctx, test.args.in)
 			assert.NotNil(t, service)
-			assert.Equal(t, tt.expected.err, out)
+			assert.Equal(t, test.expected.err, out)
 		})
 	}
 }
@@ -136,6 +137,7 @@ func TestCustomerServiceIntegrationTest_AccountCreation(t *testing.T) {
 		err error
 	}
 
+	// test cases
 	tests := map[string]struct {
 		args     args
 		expected expectation
@@ -199,10 +201,10 @@ func TestCustomerServiceIntegrationTest_AccountCreation(t *testing.T) {
 	service := NewCustomerService(repo)
 	assert.NotNil(t, service)
 
-	for scenario, tt := range tests {
+	for scenario, test := range tests {
 		t.Run(scenario, func(t *testing.T) {
-			out := service.AccountCreation(tt.args.ctx, tt.args.in)
-			assert.Equal(t, tt.expected.err, out)
+			out := service.AccountCreation(test.args.ctx, test.args.in)
+			assert.Equal(t, test.expected.err, out)
 		})
 	}
 }
@@ -255,14 +257,14 @@ func TestCustomerService_AccountInquiry(t *testing.T) {
 		},
 	}
 
-	for scenario, tt := range tests {
+	for scenario, test := range tests {
 		t.Run(scenario, func(t *testing.T) {
 			repo := &customerRepoMock{Mock: mock.Mock{}}
-			repo.Mock.On("InquiryByAccountNumber", tt.args.ctx, tt.args.accountNumber).Return(tt.expected.account, tt.expected.err)
+			repo.Mock.On("InquiryByAccountNumber", test.args.ctx, test.args.accountNumber).Return(test.expected.account, test.expected.err)
 			service := NewCustomerService(repo)
-			out, err := service.AccountInquiry(tt.args.ctx, tt.args.accountNumber)
-			assert.Equal(t, tt.expected.account, out)
-			assert.Equal(t, tt.expected.err, err)
+			out, err := service.AccountInquiry(test.args.ctx, test.args.accountNumber)
+			assert.Equal(t, test.expected.account, out)
+			assert.Equal(t, test.expected.err, err)
 		})
 	}
 }
@@ -329,14 +331,14 @@ func TestCustomerServiceIntegrationTest_AccountInquiry(t *testing.T) {
 	service := NewCustomerService(repo)
 	assert.NotNil(t, service)
 
-	for scenario, tt := range tests {
+	for scenario, test := range tests {
 		t.Run(scenario, func(t *testing.T) {
-			out, err := service.AccountInquiry(tt.args.ctx, tt.args.accountNumber)
-			assert.IsType(t, tt.expected.account, out)
-			assert.Equal(t, tt.expected.err, err)
+			out, err := service.AccountInquiry(test.args.ctx, test.args.accountNumber)
+			assert.IsType(t, test.expected.account, out)
+			assert.Equal(t, test.expected.err, err)
 			if out != nil {
-				assert.Equal(t, tt.expected.account.AccountNumber, out.AccountNumber)
-				assert.Equal(t, tt.expected.account.Cif, out.Cif)
+				assert.Equal(t, test.expected.account.AccountNumber, out.AccountNumber)
+				assert.Equal(t, test.expected.account.Cif, out.Cif)
 				assert.Equal(t, "FLORENCE FEDORA AGUSTINA", out.Customer.Name)
 			}
 		})

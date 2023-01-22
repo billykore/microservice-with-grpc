@@ -63,7 +63,7 @@ func TestCustomerRepo_CreateAccount(t *testing.T) {
 		DatabaseName:     "grpc_microservices",
 	})
 	assert.NotNil(t, db)
-	err := database.Migrate(db, &Account{})
+	err := database.Migrate(db, &Customer{})
 
 	repo := NewCustomerRepo(db)
 	err = repo.CreateAccount(context.Background(), &Account{

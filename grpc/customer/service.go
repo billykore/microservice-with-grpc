@@ -6,6 +6,7 @@ import (
 	"log"
 
 	pb "microservice-with-grpc/gen/customer/v1"
+	"microservice-with-grpc/internal"
 )
 
 type CustomerService interface {
@@ -36,12 +37,12 @@ func (s *customerService) AccountCreation(ctx context.Context, req *pb.AccountCr
 		return errors.New("account creation error")
 	}
 	// create new account number for new account cif.
-	newAccountNumber, err := s.createAccountNumber(ctx, SavingAccount)
+	newAccountNumber, err := s.createAccountNumber(ctx, internal.SavingAccount)
 	if err != nil {
 		log.Printf("[service error] account creation error: %v", err)
 		return errors.New("account creation error")
 	}
-	account := BuildAccount(customer.Cif, newAccountNumber, SavingAccount)
+	account := BuildAccount(customer.Cif, newAccountNumber, internal.SavingAccount)
 	err = s.Repo.CreateAccount(ctx, account)
 	if err != nil {
 		log.Printf("[service error] account creation error: %v", err)
@@ -57,11 +58,11 @@ func (s *customerService) createCif(ctx context.Context) (string, error) {
 		log.Printf("[service error] create new cif error: %v", err)
 		return "", errors.New("create new cif error")
 	}
-	newCif := BuildNewCif(lastCif)
+	newCif := internal.BuildNewCif(lastCif)
 	return newCif, nil
 }
 
-func (s *customerService) createAccountNumber(ctx context.Context, accType AccountType) (string, error) {
+func (s *customerService) createAccountNumber(ctx context.Context, accType internal.AccountType) (string, error) {
 	lastAccountNumber, err := s.Repo.GetLastAccount(ctx)
 	if err != nil {
 		log.Printf("[service error] create new account number error: %v", err)
@@ -69,11 +70,11 @@ func (s *customerService) createAccountNumber(ctx context.Context, accType Accou
 	}
 	var newAccount string
 	switch accType {
-	case SavingAccount:
-		newAccount = BuildNewAccountNumber(lastAccountNumber)
+	case internal.SavingAccount:
+		newAccount = internal.BuildNewAccountNumber(lastAccountNumber)
 		break
-	case GiroAccount:
-		newAccount = BuildNewAccountNumber(lastAccountNumber)
+	case internal.GiroAccount:
+		newAccount = internal.BuildNewAccountNumber(lastAccountNumber)
 		break
 	}
 	return newAccount, nil

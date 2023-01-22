@@ -6,6 +6,7 @@ import (
 	"gorm.io/gorm"
 
 	pb "microservice-with-grpc/gen/customer/v1"
+	"microservice-with-grpc/internal"
 )
 
 type Customer struct {
@@ -54,7 +55,7 @@ type Account struct {
 	Blocked          string    `gorm:"not null;default:0"`
 }
 
-func BuildAccount(cif, accNumber string, accType AccountType) *Account {
+func BuildAccount(cif, accNumber string, accType internal.AccountType) *Account {
 	return &Account{
 		Model:            gorm.Model{},
 		Cif:              cif,
@@ -63,9 +64,9 @@ func BuildAccount(cif, accNumber string, accType AccountType) *Account {
 		Balance:          "0.00",
 		MinimumBalance:   "0.00",
 		AvailableBalance: "0.00",
-		Status:           StatusOpen.String(), // default status is open
+		Status:           internal.StatusOpen.String(), // default status is open
 		Currency:         "IDR",
 		ProductType:      "000005",
-		Blocked:          NotBlocked.String(),
+		Blocked:          internal.NotBlocked.String(),
 	}
 }
