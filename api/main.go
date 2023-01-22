@@ -10,6 +10,7 @@ import (
 	"microservice-with-grpc/api/router"
 	authpb "microservice-with-grpc/gen/auth/v1"
 	customerpb "microservice-with-grpc/gen/customer/v1"
+	paymentpb "microservice-with-grpc/gen/payment/v1"
 )
 
 func main() {
@@ -23,15 +24,24 @@ func main() {
 	auth := handler.NewAuthHandler(authClient)
 
 	//clientConn, err := grpc.Dial("localhost:50051", grpc.WithTransportCredentials(insecure.NewCredentials())) // local
-	clientConn, err := grpc.Dial("172.22.0.1:50051", grpc.WithTransportCredentials(insecure.NewCredentials())) //docker
+	customerConn, err := grpc.Dial("172.22.0.1:50051", grpc.WithTransportCredentials(insecure.NewCredentials())) //docker
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
-	defer clientConn.Close()
-	customerClient := customerpb.NewCustomerClient(clientConn)
+	defer customerConn.Close()
+	customerClient := customerpb.NewCustomerClient(customerConn)
 	customer := handler.NewCustomerHandler(customerClient)
 
-	h := handler.Handlers{Auth: auth, Customer: customer}
+	//paymentConn, err := grpc.Dial("localhost:50053", grpc.WithTransportCredentials(insecure.NewCredentials())) //docker
+	paymentConn, err := grpc.Dial("172.22.0.1:50053", grpc.WithTransportCredentials(insecure.NewCredentials())) //docker
+	if err != nil {
+		log.Fatalf("did not connect: %v", err)
+	}
+	defer authConn.Close()
+	paymentClient := paymentpb.NewPaymentClient(paymentConn)
+	payment := handler.NewPaymentHandler(paymentClient)
+
+	h := handler.Handlers{Auth: auth, Customer: customer, Payment: payment}
 	r := router.New(h)
 	log.Printf("server listening at :8080")
 	if err = r.Run(":8080"); err != nil {
