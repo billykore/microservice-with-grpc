@@ -17,6 +17,8 @@ func New(h handler.Handlers) *gin.Engine {
 		v1.POST("/auth/token", h.Auth.GetToken)
 		// Payment routes
 		v1.POST("/payment/qris", h.Payment.Qris)
+		// Chat routes
+		v1.GET("/notification", h.Notification.FetchResponse)
 	}
 	return r
 }
