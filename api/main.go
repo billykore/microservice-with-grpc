@@ -10,6 +10,7 @@ import (
 	"microservice-with-grpc/api/router"
 	authpb "microservice-with-grpc/gen/auth/v1"
 	customerpb "microservice-with-grpc/gen/customer/v1"
+	notificationpb "microservice-with-grpc/gen/notification/v1"
 	paymentpb "microservice-with-grpc/gen/payment/v1"
 )
 
@@ -41,7 +42,16 @@ func main() {
 	paymentClient := paymentpb.NewPaymentClient(paymentConn)
 	payment := handler.NewPaymentHandler(paymentClient)
 
-	h := handler.Handlers{Auth: auth, Customer: customer, Payment: payment}
+	notificationConn, err := grpc.Dial("localhost:50054", grpc.WithTransportCredentials(insecure.NewCredentials())) //local
+	//notificationConn, err := grpc.Dial("172.22.0.1:50054", grpc.WithTransportCredentials(insecure.NewCredentials())) //docker
+	if err != nil {
+		log.Fatalf("did not connect: %v", err)
+	}
+	defer notificationConn.Close()
+	notificationClient := notificationpb.NewNotificationClient(notificationConn)
+	notification := handler.NewNotificationHandler(notificationClient)
+
+	h := handler.Handlers{Auth: auth, Customer: customer, Payment: payment, Notification: notification}
 	r := router.New(h)
 	log.Printf("server listening at :8080")
 	if err = r.Run(":8080"); err != nil {
