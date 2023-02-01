@@ -4,7 +4,8 @@ package handler
 //
 // Register api handlers here.
 type Handlers struct {
-	Auth     *AuthHandler
-	Customer *CustomerHandler
-	Payment  *PaymentHandler
+	Auth         *AuthHandler
+	Customer     *CustomerHandler
+	Payment      *PaymentHandler
+	Notification *NotificationHandler
 }
