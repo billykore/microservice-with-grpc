@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package transaction;
+
+option go_package = "gen/transaction/v1";
+
+service Transaction {
+  rpc Transfer(TransferRequest) returns (TransferResponse);
+}
+
+message TransferRequest {
+  string trxId = 1;
+  string accountSource = 2;
+  string accountDestination = 3;
+  string amount = 4;
+}
+
+message TransferResponse {
+  bool success = 1;
+  string message = 2;
+}

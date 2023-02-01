@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package auth;
+
+option go_package = "gen/notification/v1";
+
+service Notification {
+  rpc FetchResponse (Request) returns (stream Response);
+}
+
+message Request {
+  int32 id = 1;
+}
+
+message Response {
+  string result = 1;
+}
