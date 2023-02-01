@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: Microservice with Go and gRPC
-  description: API Specification for learning microservice with grpc
+  description: API Specification for learning microservice with Go and gRPC
   version: 1.0.0
   contact:
     email: billyimmcul2010@gmail.com
@@ -156,7 +156,7 @@ paths:
                       cif: '0000000003'
                       accountNumber: '001001000002300'
                       accountType: S
-                      name: FLORENCE FEDORA AGUSTINA
+                      name: FLORENCE FEDORA
                       currency: IDR
                       status: '1'
                       blocked: '0'
@@ -285,7 +285,7 @@ components:
           example: '0101013102000001'
         name:
           type: string
-          example: Ni Luh Putu Giri Gita Saraswati
+          example: Gita Saraswati
         pob:
           type: string
           example: Jakarta

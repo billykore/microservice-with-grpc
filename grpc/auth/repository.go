@@ -24,13 +24,13 @@ func NewAuthRepo(DB *gorm.DB) AuthRepo {
 }
 
 func (r *authRepo) GetUser(ctx context.Context, username string) (*entity.User, error) {
-	var user entity.User
-	tx := r.DB.WithContext(ctx).First(&user, "username = ?", username)
+	user := new(entity.User)
+	tx := r.DB.WithContext(ctx).First(user, "username = ?", username)
 	if err := tx.Error; err != nil {
 		log.Printf("[repository error] error get user: %v", err)
 		return nil, errors.New("error get user")
 	}
-	return &user, nil
+	return user, nil
 }
 
 func (r *authRepo) InsertTokenLog(ctx context.Context, tokenLog *entity.TokenLog) error {

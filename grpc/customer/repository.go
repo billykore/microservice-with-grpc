@@ -35,7 +35,7 @@ func (r *customerRepo) CreateCustomer(ctx context.Context, customer *Customer) e
 }
 
 func (r *customerRepo) GetLastCif(ctx context.Context) (string, error) {
-	customer := &Customer{}
+	customer := new(Customer)
 	tx := r.DB.WithContext(ctx).Last(customer)
 	if err := tx.Error; err != nil {
 		log.Printf("[repository error] error get last cif: %v", err)
@@ -45,7 +45,7 @@ func (r *customerRepo) GetLastCif(ctx context.Context) (string, error) {
 }
 
 func (r *customerRepo) GetLastAccount(ctx context.Context) (string, error) {
-	account := &Account{}
+	account := new(Account)
 	tx := r.DB.WithContext(ctx).Last(account)
 	if err := tx.Error; err != nil {
 		log.Printf("[repository error] error get last account: %v", err)
@@ -64,26 +64,26 @@ func (r *customerRepo) CreateAccount(ctx context.Context, account *Account) erro
 }
 
 func (r *customerRepo) InquiryByAccountNumber(ctx context.Context, accountNumber string) (*Account, error) {
-	var account Account
-	tx := r.DB.WithContext(ctx).First(&account, "account_number = ?", accountNumber)
+	account := new(Account)
+	tx := r.DB.WithContext(ctx).First(account, "account_number = ?", accountNumber)
 	if err := tx.Error; err != nil {
 		log.Printf("[repository error] error inquiry by account number: %v", err)
 		return nil, errors.New("inquiry by account number")
 	}
-	return &account, nil
+	return account, nil
 }
 
 func (r *customerRepo) GetCustomerByAccountNumber(ctx context.Context, accountNumber string) (*Customer, error) {
-	var customer Customer
+	customer := new(Customer)
 	tx := r.DB.Table("customers").
 		Select("*").
 		Joins("LEFT JOIN accounts ON customers.cif = accounts.cif").
 		Where("accounts.account_number = ?", accountNumber).
 		WithContext(ctx).
-		Scan(&customer)
+		Scan(customer)
 	if err := tx.Error; err != nil {
 		log.Printf("[repository error] error get customer by account number. %v", err)
 		return nil, errors.New("error get customer by account number")
 	}
-	return &customer, nil
+	return customer, nil
 }

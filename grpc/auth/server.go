@@ -3,11 +3,11 @@ package main
 import (
 	"context"
 	"log"
-	"microservice-with-grpc/database"
 	"net"
 
 	"google.golang.org/grpc"
 
+	"microservice-with-grpc/database"
 	pb "microservice-with-grpc/gen/auth/v1"
 )
 

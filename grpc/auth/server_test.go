@@ -4,8 +4,6 @@ import (
 	"context"
 	"errors"
 	"log"
-	"microservice-with-grpc/database"
-	"microservice-with-grpc/entity"
 	"net"
 	"testing"
 
@@ -15,6 +13,8 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/test/bufconn"
 
+	"microservice-with-grpc/database"
+	"microservice-with-grpc/entity"
 	pb "microservice-with-grpc/gen/auth/v1"
 )
 
