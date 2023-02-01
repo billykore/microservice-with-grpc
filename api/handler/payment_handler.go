@@ -9,6 +9,7 @@ import (
 	"microservice-with-grpc/api/helper"
 	"microservice-with-grpc/api/request"
 	"microservice-with-grpc/api/response"
+	"microservice-with-grpc/api/validator"
 	pb "microservice-with-grpc/gen/payment/v1"
 )
 
@@ -29,6 +30,16 @@ func (h *PaymentHandler) Qris(ctx *gin.Context) {
 			ResponseCode:    http.StatusBadRequest,
 			ResponseMessage: "Failed to process qris payment",
 			Error:           "Request body is not valid",
+		})
+		return
+	}
+	valid, errMsg := validator.ValidateRequestBody(body)
+	if !valid {
+		log.Printf("[handler error] request body validation error: %v", errMsg)
+		ctx.JSON(http.StatusBadRequest, &response.Response{
+			ResponseCode:    http.StatusBadRequest,
+			ResponseMessage: "Failed create new account",
+			Error:           errMsg,
 		})
 		return
 	}
