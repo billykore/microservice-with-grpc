@@ -13,6 +13,7 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/test/bufconn"
 
+	"microservice-with-grpc/database"
 	pb "microservice-with-grpc/gen/transaction/v1"
 )
 
@@ -91,8 +92,8 @@ func TestTransactionServer_Transfer(t *testing.T) {
 				ctx: ctx,
 				in: &pb.TransferRequest{
 					TrxId:              "example-id-123",
-					AccountSource:      "123456789",
-					AccountDestination: "987654321",
+					SourceAccount:      "123456789",
+					DestinationAccount: "987654321",
 					Amount:             "500000",
 				},
 			},
@@ -132,8 +133,92 @@ func TestTransactionServer_Transfer(t *testing.T) {
 			// call transfer function
 			got, err := transaction.Transfer(test.args.ctx, test.args.in)
 			// check the output
-			assert.Equal(t, test.expected.out, got)
+			if got != nil {
+				assert.Equal(t, test.expected.out.Success, got.Success)
+				assert.Equal(t, test.expected.out.Message, got.Message)
+			}
 			assert.Equal(t, test.expected.err, err)
+		})
+	}
+}
+
+func TestTransactionServerIntegrationTest_Transfer(t *testing.T) {
+	type args struct {
+		ctx context.Context
+		in  *pb.TransferRequest
+	}
+
+	type expectation struct {
+		out *pb.TransferResponse
+		err error
+	}
+
+	ctx := context.Background()
+
+	// test cases
+	tests := map[string]struct {
+		args     args
+		expected expectation
+	}{
+		"transfer_successful": {
+			args: args{
+				ctx: ctx,
+				in: &pb.TransferRequest{
+					TrxId:              "example-id-123",
+					SourceAccount:      "001001000001300",
+					DestinationAccount: "001001000002300",
+					Amount:             "50000",
+				},
+			},
+			expected: expectation{
+				out: &pb.TransferResponse{
+					Success: true,
+					Message: "Transfer successful",
+				},
+				err: nil,
+			},
+		},
+		"transfer_failed": {
+			args: args{
+				ctx: ctx,
+				in:  &pb.TransferRequest{},
+			},
+			expected: expectation{
+				out: nil,
+				err: errors.New("rpc error: code = Unknown desc = transfer error"),
+			},
+		},
+	}
+
+	db := database.New(database.MySQL, &database.Config{
+		DatabaseUser:     "root",
+		DatabasePassword: "root",
+		DatabaseHost:     "localhost",
+		DatabasePort:     "3306",
+		DatabaseName:     "grpc_microservices",
+	})
+	assert.NotNil(t, db)
+	repo := NewTransactionRepo(db)
+	assert.NotNil(t, repo)
+	service := NewTransactionService(repo)
+	assert.NotNil(t, service)
+
+	transaction, closer := server(ctx, service)
+	defer closer()
+
+	// run the test
+	for scenario, test := range tests {
+		t.Run(scenario, func(t *testing.T) {
+			// call transfer function
+			got, err := transaction.Transfer(test.args.ctx, test.args.in)
+			// check the output
+			if got != nil {
+				assert.Equal(t, test.expected.out.Success, got.Success)
+				assert.Equal(t, test.expected.out.Message, got.Message)
+			}
+			if err != nil {
+				assert.Equal(t, test.expected.err.Error(), err.Error())
+			}
 		})
 	}
 }

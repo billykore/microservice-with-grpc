@@ -3,12 +3,13 @@ package main
 import (
 	"context"
 	"errors"
-	"microservice-with-grpc/database"
-	"microservice-with-grpc/entity"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+
+	"microservice-with-grpc/database"
+	"microservice-with-grpc/entity"
 )
 
 type paymentRepoMock struct {
@@ -129,9 +130,9 @@ func TestPaymentServiceIntegrationTest_Qris(t *testing.T) {
 				ctx: ctx,
 				req: &Request{
 					MerchantId:         "M-001",
-					TrxNumber:          "000003",
-					AccountSource:      "001001000001300",
-					AccountDestination: "001001000002300",
+					TrxNumber:          "000077",
+					SourceAccount:      "001001000001300",
+					DestinationAccount: "001001000002300",
 					Amount:             "50000",
 				},
 			},

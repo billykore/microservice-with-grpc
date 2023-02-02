@@ -10,8 +10,8 @@ service Transaction {
 
 message TransferRequest {
   string trxId = 1;
-  string accountSource = 2;
-  string accountDestination = 3;
+  string sourceAccount = 2;
+  string destinationAccount = 3;
   string amount = 4;
 }
 

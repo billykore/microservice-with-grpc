@@ -3,11 +3,12 @@ package main
 import (
 	"context"
 	"errors"
-	"microservice-with-grpc/database"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+
+	"microservice-with-grpc/database"
 )
 
 type transactionRepoMock struct {
@@ -137,7 +138,7 @@ func TestTransactionServiceIntegrationTest_Transfer(t *testing.T) {
 				},
 			},
 			expected: expectation{
-				err: errors.New("transfer failed"),
+				err: errors.New("transfer error"),
 			},
 		},
 	}

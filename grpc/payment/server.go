@@ -23,8 +23,8 @@ func (p *paymentServer) Qris(ctx context.Context, in *pb.QrisRequest) (*pb.QrisR
 	req := &Request{
 		MerchantId:         in.GetMerchantId(),
 		TrxNumber:          in.GetTrxNumber(),
-		AccountSource:      in.GetAccountSource(),
-		AccountDestination: in.GetAccountDestination(),
+		SourceAccount:      in.GetAccountSource(),
+		DestinationAccount: in.GetAccountDestination(),
 		Amount:             in.GetAmount(),
 	}
 	succeed, err := p.Service.Qris(ctx, req)

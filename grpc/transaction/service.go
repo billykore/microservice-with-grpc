@@ -27,12 +27,10 @@ func NewTransactionService(repo TransactionRepo) TransactionService {
 func (s *transactionService) Transfer(ctx context.Context, req *Request) error {
 	sourceAccount, err := s.getSourceAccount(ctx, req.SourceAccount)
 	if err != nil {
-		log.Printf("[transaction service error] transfer error: %v", err)
 		return errors.New("transfer error")
 	}
 	destinationAccount, err := s.getDestinationAccount(ctx, req.DestinationAccount)
 	if err != nil {
-		log.Printf("[transaction service error] transfer error: %v", err)
 		return errors.New("transfer error")
 	}
 
