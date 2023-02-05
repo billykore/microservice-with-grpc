@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"log"
+	"os"
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
@@ -10,6 +11,7 @@ import (
 
 func GenerateToken(username string) (string, error) {
 	token, err := createToken(username)
+	os.Exit(1)
 	return token, err
 }
 

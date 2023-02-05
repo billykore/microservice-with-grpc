@@ -10,7 +10,7 @@ import (
 )
 
 func TransactionClient() (transactionpb.TransactionClient, func()) {
-	conn, err := grpc.Dial("localhost:50055", grpc.WithTransportCredentials(insecure.NewCredentials())) //local
+	conn, err := grpc.Dial("172.22.0.1:50055", grpc.WithTransportCredentials(insecure.NewCredentials())) //local
 	//notificationConn, err := grpc.Dial("172.22.0.1:50054", grpc.WithTransportCredentials(insecure.NewCredentials())) //docker
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)

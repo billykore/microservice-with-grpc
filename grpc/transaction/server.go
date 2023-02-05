@@ -43,7 +43,7 @@ func main() {
 	db := database.New(database.MySQL, &database.Config{
 		DatabaseUser:     "root",
 		DatabasePassword: "root",
-		DatabaseHost:     "localhost",
+		DatabaseHost:     "172.22.0.1",
 		DatabasePort:     "3306",
 		DatabaseName:     "grpc_microservices",
 	})
