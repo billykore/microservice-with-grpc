@@ -6,6 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	"microservice-with-grpc/api/exception"
 	"microservice-with-grpc/api/helper"
 	"microservice-with-grpc/api/request"
 	"microservice-with-grpc/api/response"
@@ -38,7 +39,7 @@ func (h *PaymentHandler) Qris(ctx *gin.Context) {
 		log.Printf("[handler error] request body validation error: %v", errMsg)
 		ctx.JSON(http.StatusBadRequest, &response.Response{
 			ResponseCode:    http.StatusBadRequest,
-			ResponseMessage: "Failed create new account",
+			ResponseMessage: "Failed to process qris payment",
 			Error:           errMsg,
 		})
 		return
@@ -46,7 +47,7 @@ func (h *PaymentHandler) Qris(ctx *gin.Context) {
 	grpcRequest := helper.BuildQrisPaymentGrpcRequest(body)
 	grpcResponse, err := h.Client.Qris(ctx, grpcRequest)
 	log.Printf("[payment grpc response] %v", grpcResponse)
-	if err != nil {
+	if err != nil && exception.Have(exception.GRPCServiceUnavailable, err) {
 		log.Printf("[handler error] qris payment error from customer grpc service: %v", err)
 		ctx.JSON(http.StatusServiceUnavailable, &response.Response{
 			ResponseCode:    http.StatusServiceUnavailable,
