@@ -22,7 +22,7 @@ type customerServiceMock struct {
 	mock.Mock
 }
 
-func (m *customerServiceMock) AccountCreation(ctx context.Context, data *pb.AccountCreationRequest) error {
+func (m *customerServiceMock) accountCreation(ctx context.Context, data *pb.AccountCreationRequest) error {
 	args := m.Mock.Called(ctx, data)
 	if args.Get(0) != nil {
 		return args.Get(0).(error)
@@ -30,20 +30,20 @@ func (m *customerServiceMock) AccountCreation(ctx context.Context, data *pb.Acco
 	return nil
 }
 
-func (m *customerServiceMock) AccountInquiry(ctx context.Context, accountNumber string) (*Account, error) {
+func (m *customerServiceMock) accountInquiry(ctx context.Context, accountNumber string) (*account, error) {
 	args := m.Mock.Called(ctx, accountNumber)
 	if args.Get(0) == nil && args.Get(1) != nil {
 		return nil, args.Get(1).(error)
 	}
-	return args.Get(0).(*Account), nil
+	return args.Get(0).(*account), nil
 }
 
-func server(ctx context.Context, service CustomerService) (pb.CustomerClient, func()) {
+func server(ctx context.Context, service customerService) (pb.CustomerClient, func()) {
 	buffer := 1024 * 1024
 	lis := bufconn.Listen(buffer)
 
 	baseServer := grpc.NewServer()
-	pb.RegisterCustomerServer(baseServer, NewCustomerServer(service))
+	pb.RegisterCustomerServer(baseServer, newCustomerServer(service))
 	go func() {
 		if err := baseServer.Serve(lis); err != nil {
 			log.Printf("error serving server: %v", err)
@@ -86,11 +86,11 @@ func TestCustomerServer_AccountCreation(t *testing.T) {
 
 	expectation := &pb.AccountCreationResponse{
 		Success: true,
-		Message: "Account creation succeed",
+		Message: "account creation succeed",
 	}
 
 	service := &customerServiceMock{Mock: mock.Mock{}}
-	service.Mock.On("AccountCreation", mock.Anything, mock.Anything).Return(nil)
+	service.Mock.On("accountCreation", mock.Anything, mock.Anything).Return(nil)
 
 	ctx := context.Background()
 	customer, closer := server(ctx, service)
@@ -107,11 +107,11 @@ func TestCustomerServer_AccountCreationFailed(t *testing.T) {
 	in := &pb.AccountCreationRequest{}
 	expectation := &pb.AccountCreationResponse{
 		Success: false,
-		Message: "Account creation failed",
+		Message: "account creation failed",
 	}
 
 	service := &customerServiceMock{Mock: mock.Mock{}}
-	service.Mock.On("AccountCreation", mock.Anything, mock.Anything).Return(errors.New("account creation failed"))
+	service.Mock.On("accountCreation", mock.Anything, mock.Anything).Return(errors.New("account creation failed"))
 
 	ctx := context.Background()
 	customer, closer := server(ctx, service)
@@ -140,7 +140,7 @@ func TestCustomerServerIntegrationTest_AccountCreation(t *testing.T) {
 
 	expectation := &pb.AccountCreationResponse{
 		Success: true,
-		Message: "Account creation succeed",
+		Message: "account creation succeed",
 	}
 
 	db := database.New(database.MySQL, &database.Config{
@@ -151,11 +151,11 @@ func TestCustomerServerIntegrationTest_AccountCreation(t *testing.T) {
 		DatabaseName:     "grpc_microservices",
 	})
 	assert.NotNil(t, db)
-	err := database.Migrate(db, &Customer{})
+	err := database.Migrate(db, &customer{})
 	assert.NoError(t, err)
-	repo := NewCustomerRepo(db)
+	repo := newCustomerRepo(db)
 	assert.NotNil(t, repo)
-	service := NewCustomerService(repo)
+	service := newCustomerService(repo)
 	assert.NotNil(t, service)
 
 	ctx := context.Background()
@@ -186,7 +186,7 @@ func TestCustomerServerIntegrationTest_AccountCreationFailed(t *testing.T) {
 
 	expectation := &pb.AccountCreationResponse{
 		Success: false,
-		Message: "Account creation failed",
+		Message: "account creation failed",
 	}
 
 	db := database.New(database.MySQL, &database.Config{
@@ -197,11 +197,11 @@ func TestCustomerServerIntegrationTest_AccountCreationFailed(t *testing.T) {
 		DatabaseName:     "grpc_microservices",
 	})
 	assert.NotNil(t, db)
-	err := database.Migrate(db, &Customer{})
+	err := database.Migrate(db, &customer{})
 	assert.NoError(t, err)
-	repo := NewCustomerRepo(db)
+	repo := newCustomerRepo(db)
 	assert.NotNil(t, repo)
-	service := NewCustomerService(repo)
+	service := newCustomerService(repo)
 	assert.NotNil(t, service)
 
 	ctx := context.Background()
@@ -234,7 +234,7 @@ func TestCustomerServer_AccountInquiry(t *testing.T) {
 	}
 
 	service := &customerServiceMock{Mock: mock.Mock{}}
-	service.On("AccountInquiry", mock.Anything, in.AccountNumber).Return(expectation, nil)
+	service.On("accountInquiry", mock.Anything, in.AccountNumber).Return(expectation, nil)
 
 	ctx := context.Background()
 	customer, closer := server(ctx, service)
@@ -252,7 +252,7 @@ func TestCustomerServer_AccountInquiryFailed(t *testing.T) {
 	}
 
 	service := &customerServiceMock{Mock: mock.Mock{}}
-	service.On("AccountInquiry", mock.Anything, in.AccountNumber).Return(nil, errors.New("account not found"))
+	service.On("accountInquiry", mock.Anything, in.AccountNumber).Return(nil, errors.New("account not found"))
 
 	ctx := context.Background()
 	customer, closer := server(ctx, service)
@@ -289,9 +289,9 @@ func TestCustomerServerIntegrationTest_AccountInquiry(t *testing.T) {
 		DatabaseName:     "grpc_microservices",
 	})
 	assert.NotNil(t, db)
-	repo := NewCustomerRepo(db)
+	repo := newCustomerRepo(db)
 	assert.NotNil(t, repo)
-	service := NewCustomerService(repo)
+	service := newCustomerService(repo)
 	assert.NotNil(t, service)
 
 	ctx := context.Background()

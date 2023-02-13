@@ -9,7 +9,7 @@ import (
 	"microservice-with-grpc/internal"
 )
 
-type Customer struct {
+type customer struct {
 	gorm.Model
 	Nik            string `gorm:"unique;not null"`
 	Name           string `gorm:"not null"`
@@ -24,8 +24,8 @@ type Customer struct {
 	Cif            string `gorm:"unique;not null"`
 }
 
-func BuildCustomer(data *pb.AccountCreationRequest) *Customer {
-	return &Customer{
+func buildCustomer(data *pb.AccountCreationRequest) *customer {
+	return &customer{
 		Model:          gorm.Model{},
 		Nik:            data.Nik,
 		Name:           strings.ToUpper(data.Name),
@@ -40,9 +40,9 @@ func BuildCustomer(data *pb.AccountCreationRequest) *Customer {
 	}
 }
 
-type Account struct {
+type account struct {
 	gorm.Model
-	Customer         *Customer `gorm:"foreignKey:Cif"`
+	Customer         *customer `gorm:"foreignKey:Cif"`
 	Cif              string    `gorm:"unique;not null"`
 	AccountNumber    string    `gorm:"unique;not null"`
 	Type             string    `gorm:"not null"`
@@ -55,8 +55,8 @@ type Account struct {
 	Blocked          string    `gorm:"not null;default:0"`
 }
 
-func BuildAccount(cif, accNumber string, accType internal.AccountType) *Account {
-	return &Account{
+func buildAccount(cif, accNumber string, accType internal.AccountType) *account {
+	return &account{
 		Model:            gorm.Model{},
 		Cif:              cif,
 		AccountNumber:    accNumber,

@@ -13,20 +13,20 @@ import (
 
 type authServer struct {
 	pb.UnimplementedAuthServer
-	Service AuthService
+	service authService
 }
 
-func NewAuthServer(service AuthService) pb.AuthServer {
-	return &authServer{Service: service}
+func newAuthServer(service authService) pb.AuthServer {
+	return &authServer{service: service}
 }
 
 func (a *authServer) GetToken(ctx context.Context, in *pb.TokenRequest) (*pb.TokenResponse, error) {
-	req := &Request{
-		Username:  in.GetUsername(),
-		Password:  in.GetPassword(),
-		GrantType: in.GetGrantType(),
+	req := &request{
+		username:  in.GetUsername(),
+		password:  in.GetPassword(),
+		grantType: in.GetGrantType(),
 	}
-	token, err := a.Service.GetToken(ctx, req)
+	token, err := a.service.getToken(ctx, req)
 	if err != nil {
 		log.Printf("[server error] get token error: %v", err)
 		return nil, err
@@ -46,9 +46,9 @@ func main() {
 		DatabasePort:     "5432",
 		DatabaseName:     "grpc_auth_service",
 	})
-	repo := NewAuthRepo(db)
-	service := NewAuthService(repo)
-	auth := NewAuthServer(service)
+	repo := newAuthRepo(db)
+	service := newAuthService(repo)
+	auth := newAuthServer(service)
 
 	lis, err := net.Listen("tcp", ":50052")
 	if err != nil {

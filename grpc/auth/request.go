@@ -1,7 +1,7 @@
 package main
 
-type Request struct {
-	Username  string
-	Password  string
-	GrantType string
+type request struct {
+	username  string
+	password  string
+	grantType string
 }

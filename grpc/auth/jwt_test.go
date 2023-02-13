@@ -8,7 +8,7 @@ import (
 )
 
 func TestGenerateToken(t *testing.T) {
-	token, err := GenerateToken("user")
+	token, err := generateToken("user")
 	assert.NoError(t, err)
 	assert.NotEmpty(t, token)
 	fmt.Println("generated token:", token)

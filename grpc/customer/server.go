@@ -13,45 +13,45 @@ import (
 
 type customerServer struct {
 	pb.UnimplementedCustomerServer
-	Service CustomerService
+	service customerService
 }
 
-func NewCustomerServer(service CustomerService) pb.CustomerServer {
-	return &customerServer{Service: service}
+func newCustomerServer(service customerService) pb.CustomerServer {
+	return &customerServer{service: service}
 }
 
-func (c *customerServer) AccountCreation(ctx context.Context, in *pb.AccountCreationRequest) (*pb.AccountCreationResponse, error) {
-	err := c.Service.AccountCreation(ctx, in)
+func (c *customerServer) accountCreation(ctx context.Context, in *pb.AccountCreationRequest) (*pb.AccountCreationResponse, error) {
+	err := c.service.accountCreation(ctx, in)
 	if err != nil {
 		log.Printf("[server error] account creation error: %v", err)
 		return &pb.AccountCreationResponse{
 			Success: false,
-			Message: "Account creation failed",
+			Message: "account creation failed",
 		}, err
 	}
 	return &pb.AccountCreationResponse{
 		Success: true,
-		Message: "Account creation succeed",
+		Message: "account creation succeed",
 	}, nil
 }
 
-func (c *customerServer) AccountInquiry(ctx context.Context, in *pb.InquiryRequest) (*pb.InquiryResponse, error) {
-	account, err := c.Service.AccountInquiry(ctx, in.GetAccountNumber())
+func (c *customerServer) accountInquiry(ctx context.Context, in *pb.InquiryRequest) (*pb.InquiryResponse, error) {
+	acc, err := c.service.accountInquiry(ctx, in.GetAccountNumber())
 	if err != nil {
 		log.Printf("[server error] account inquiry error: %v", err)
 		return &pb.InquiryResponse{}, err
 	}
 	return &pb.InquiryResponse{
-		Cif:            account.Cif,
-		AccountNumber:  account.AccountNumber,
-		AccountType:    account.Type,
-		Name:           account.Customer.Name,
-		Currency:       account.Currency,
-		Status:         account.Status,
-		Blocked:        account.Blocked,
-		Balance:        account.Balance,
-		MinimumBalance: account.MinimumBalance,
-		ProductType:    account.ProductType,
+		Cif:            acc.Cif,
+		AccountNumber:  acc.AccountNumber,
+		AccountType:    acc.Type,
+		Name:           acc.Customer.Name,
+		Currency:       acc.Currency,
+		Status:         acc.Status,
+		Blocked:        acc.Blocked,
+		Balance:        acc.Balance,
+		MinimumBalance: acc.MinimumBalance,
+		ProductType:    acc.ProductType,
 	}, nil
 }
 
@@ -63,9 +63,9 @@ func main() {
 		DatabasePort:     "3306",
 		DatabaseName:     "grpc_microservices",
 	})
-	repo := NewCustomerRepo(db)
-	service := NewCustomerService(repo)
-	customer := NewCustomerServer(service)
+	repo := newCustomerRepo(db)
+	service := newCustomerService(repo)
+	customer := newCustomerServer(service)
 
 	lis, err := net.Listen("tcp", ":50051")
 	if err != nil {

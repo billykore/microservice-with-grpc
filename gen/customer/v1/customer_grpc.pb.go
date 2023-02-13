@@ -36,7 +36,7 @@ func NewCustomerClient(cc grpc.ClientConnInterface) CustomerClient {
 
 func (c *customerClient) AccountCreation(ctx context.Context, in *AccountCreationRequest, opts ...grpc.CallOption) (*AccountCreationResponse, error) {
 	out := new(AccountCreationResponse)
-	err := c.cc.Invoke(ctx, "/customer.Customer/AccountCreation", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/customer.Customer/accountCreation", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -45,7 +45,7 @@ func (c *customerClient) AccountCreation(ctx context.Context, in *AccountCreatio
 
 func (c *customerClient) AccountInquiry(ctx context.Context, in *InquiryRequest, opts ...grpc.CallOption) (*InquiryResponse, error) {
 	out := new(InquiryResponse)
-	err := c.cc.Invoke(ctx, "/customer.Customer/AccountInquiry", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/customer.Customer/accountInquiry", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -66,10 +66,10 @@ type UnimplementedCustomerServer struct {
 }
 
 func (UnimplementedCustomerServer) AccountCreation(context.Context, *AccountCreationRequest) (*AccountCreationResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AccountCreation not implemented")
+	return nil, status.Errorf(codes.Unimplemented, "method accountCreation not implemented")
 }
 func (UnimplementedCustomerServer) AccountInquiry(context.Context, *InquiryRequest) (*InquiryResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AccountInquiry not implemented")
+	return nil, status.Errorf(codes.Unimplemented, "method accountInquiry not implemented")
 }
 func (UnimplementedCustomerServer) mustEmbedUnimplementedCustomerServer() {}
 
@@ -94,7 +94,7 @@ func _Customer_AccountCreation_Handler(srv interface{}, ctx context.Context, dec
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/customer.Customer/AccountCreation",
+		FullMethod: "/customer.Customer/accountCreation",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CustomerServer).AccountCreation(ctx, req.(*AccountCreationRequest))
@@ -112,7 +112,7 @@ func _Customer_AccountInquiry_Handler(srv interface{}, ctx context.Context, dec 
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/customer.Customer/AccountInquiry",
+		FullMethod: "/customer.Customer/accountInquiry",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CustomerServer).AccountInquiry(ctx, req.(*InquiryRequest))
@@ -128,11 +128,11 @@ var Customer_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*CustomerServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "AccountCreation",
+			MethodName: "accountCreation",
 			Handler:    _Customer_AccountCreation_Handler,
 		},
 		{
-			MethodName: "AccountInquiry",
+			MethodName: "accountInquiry",
 			Handler:    _Customer_AccountInquiry_Handler,
 		},
 	},

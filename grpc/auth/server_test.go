@@ -22,7 +22,7 @@ type authServiceMock struct {
 	mock.Mock
 }
 
-func (m *authServiceMock) GetToken(ctx context.Context, req *Request) (*entity.Token, error) {
+func (m *authServiceMock) getToken(ctx context.Context, req *request) (*entity.Token, error) {
 	args := m.Mock.Called(ctx, req)
 	if args.Get(0) == nil && args.Get(1) != nil {
 		return nil, errors.New("failed to create token")
@@ -30,12 +30,12 @@ func (m *authServiceMock) GetToken(ctx context.Context, req *Request) (*entity.T
 	return args.Get(0).(*entity.Token), nil
 }
 
-func server(ctx context.Context, service AuthService) (pb.AuthClient, func()) {
+func server(ctx context.Context, service authService) (pb.AuthClient, func()) {
 	buffer := 1024 * 1024
 	lis := bufconn.Listen(buffer)
 
 	baseServer := grpc.NewServer()
-	pb.RegisterAuthServer(baseServer, NewAuthServer(service))
+	pb.RegisterAuthServer(baseServer, newAuthServer(service))
 	go func() {
 		if err := baseServer.Serve(lis); err != nil {
 			log.Printf("error serving server: %v", err)
@@ -109,9 +109,9 @@ func TestAuthServerIntegrationTest_GetToken(t *testing.T) {
 		DatabaseName:     "grpc_auth_service",
 	})
 	assert.NotNil(t, db)
-	repo := NewAuthRepo(db)
+	repo := newAuthRepo(db)
 	assert.NotNil(t, repo)
-	service := NewAuthService(repo)
+	service := newAuthService(repo)
 	assert.NotNil(t, service)
 
 	ctx := context.Background()
@@ -141,9 +141,9 @@ func TestAuthServerIntegrationTest_GetTokenUserNotExist(t *testing.T) {
 		DatabaseName:     "grpc_auth_service",
 	})
 	assert.NotNil(t, db)
-	repo := NewAuthRepo(db)
+	repo := newAuthRepo(db)
 	assert.NotNil(t, repo)
-	service := NewAuthService(repo)
+	service := newAuthService(repo)
 	assert.NotNil(t, service)
 
 	ctx := context.Background()
@@ -170,9 +170,9 @@ func TestAuthServerIntegrationTest_GetTokenWrongPassword(t *testing.T) {
 		DatabaseName:     "grpc_auth_service",
 	})
 	assert.NotNil(t, db)
-	repo := NewAuthRepo(db)
+	repo := newAuthRepo(db)
 	assert.NotNil(t, repo)
-	service := NewAuthService(repo)
+	service := newAuthService(repo)
 	assert.NotNil(t, service)
 
 	ctx := context.Background()
@@ -199,9 +199,9 @@ func TestAuthServerIntegrationTest_GetTokenInvalidGrantType(t *testing.T) {
 		DatabaseName:     "grpc_auth_service",
 	})
 	assert.NotNil(t, db)
-	repo := NewAuthRepo(db)
+	repo := newAuthRepo(db)
 	assert.NotNil(t, repo)
-	service := NewAuthService(repo)
+	service := newAuthService(repo)
 	assert.NotNil(t, service)
 
 	ctx := context.Background()

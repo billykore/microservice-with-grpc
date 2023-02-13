@@ -8,25 +8,25 @@ import (
 	"gorm.io/gorm"
 )
 
-type CustomerRepo interface {
-	CreateCustomer(ctx context.Context, customer *Customer) error
-	GetLastCif(ctx context.Context) (string, error)
-	GetLastAccount(ctx context.Context) (string, error)
-	CreateAccount(ctx context.Context, account *Account) error
-	InquiryByAccountNumber(ctx context.Context, accountNumber string) (*Account, error)
-	GetCustomerByAccountNumber(ctx context.Context, accountNumber string) (*Customer, error)
+type customerRepo interface {
+	createCustomer(ctx context.Context, customer *customer) error
+	getLastCif(ctx context.Context) (string, error)
+	getLastAccount(ctx context.Context) (string, error)
+	createAccount(ctx context.Context, account *account) error
+	inquiryByAccountNumber(ctx context.Context, accountNumber string) (*account, error)
+	getCustomerByAccountNumber(ctx context.Context, accountNumber string) (*customer, error)
 }
 
-type customerRepo struct {
-	DB *gorm.DB
+type customerRepoImpl struct {
+	db *gorm.DB
 }
 
-func NewCustomerRepo(DB *gorm.DB) CustomerRepo {
-	return &customerRepo{DB: DB}
+func newCustomerRepo(db *gorm.DB) customerRepo {
+	return &customerRepoImpl{db: db}
 }
 
-func (r *customerRepo) CreateCustomer(ctx context.Context, customer *Customer) error {
-	tx := r.DB.WithContext(ctx).Create(customer)
+func (r *customerRepoImpl) createCustomer(ctx context.Context, customer *customer) error {
+	tx := r.db.WithContext(ctx).Create(customer)
 	if err := tx.Error; err != nil {
 		log.Printf("[repository error] error create customer: %v", err)
 		return errors.New("error create customer")
@@ -34,9 +34,9 @@ func (r *customerRepo) CreateCustomer(ctx context.Context, customer *Customer) e
 	return nil
 }
 
-func (r *customerRepo) GetLastCif(ctx context.Context) (string, error) {
-	customer := new(Customer)
-	tx := r.DB.WithContext(ctx).Last(customer)
+func (r *customerRepoImpl) getLastCif(ctx context.Context) (string, error) {
+	customer := new(customer)
+	tx := r.db.WithContext(ctx).Last(customer)
 	if err := tx.Error; err != nil {
 		log.Printf("[repository error] error get last cif: %v", err)
 		return "", errors.New("error get last cif")
@@ -44,9 +44,9 @@ func (r *customerRepo) GetLastCif(ctx context.Context) (string, error) {
 	return customer.Cif, nil
 }
 
-func (r *customerRepo) GetLastAccount(ctx context.Context) (string, error) {
-	account := new(Account)
-	tx := r.DB.WithContext(ctx).Last(account)
+func (r *customerRepoImpl) getLastAccount(ctx context.Context) (string, error) {
+	account := new(account)
+	tx := r.db.WithContext(ctx).Last(account)
 	if err := tx.Error; err != nil {
 		log.Printf("[repository error] error get last account: %v", err)
 		return "", errors.New("error get last account")
@@ -54,8 +54,8 @@ func (r *customerRepo) GetLastAccount(ctx context.Context) (string, error) {
 	return account.AccountNumber, nil
 }
 
-func (r *customerRepo) CreateAccount(ctx context.Context, account *Account) error {
-	tx := r.DB.WithContext(ctx).Create(account)
+func (r *customerRepoImpl) createAccount(ctx context.Context, account *account) error {
+	tx := r.db.WithContext(ctx).Create(account)
 	if err := tx.Error; err != nil {
 		log.Printf("[repository error] error create new account: %v", err)
 		return errors.New("create new account")
@@ -63,9 +63,9 @@ func (r *customerRepo) CreateAccount(ctx context.Context, account *Account) erro
 	return nil
 }
 
-func (r *customerRepo) InquiryByAccountNumber(ctx context.Context, accountNumber string) (*Account, error) {
-	account := new(Account)
-	tx := r.DB.WithContext(ctx).First(account, "account_number = ?", accountNumber)
+func (r *customerRepoImpl) inquiryByAccountNumber(ctx context.Context, accountNumber string) (*account, error) {
+	account := new(account)
+	tx := r.db.WithContext(ctx).First(account, "account_number = ?", accountNumber)
 	if err := tx.Error; err != nil {
 		log.Printf("[repository error] error inquiry by account number: %v", err)
 		return nil, errors.New("inquiry by account number")
@@ -73,9 +73,9 @@ func (r *customerRepo) InquiryByAccountNumber(ctx context.Context, accountNumber
 	return account, nil
 }
 
-func (r *customerRepo) GetCustomerByAccountNumber(ctx context.Context, accountNumber string) (*Customer, error) {
-	customer := new(Customer)
-	tx := r.DB.Table("customers").
+func (r *customerRepoImpl) getCustomerByAccountNumber(ctx context.Context, accountNumber string) (*customer, error) {
+	customer := new(customer)
+	tx := r.db.Table("customers").
 		Select("*").
 		Joins("LEFT JOIN accounts ON customers.cif = accounts.cif").
 		Where("accounts.account_number = ?", accountNumber).

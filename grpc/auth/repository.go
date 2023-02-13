@@ -10,22 +10,22 @@ import (
 	"microservice-with-grpc/entity"
 )
 
-type AuthRepo interface {
-	GetUser(ctx context.Context, username string) (*entity.User, error)
-	InsertTokenLog(ctx context.Context, log *entity.TokenLog) error
+type authRepo interface {
+	getUser(ctx context.Context, username string) (*entity.User, error)
+	insertTokenLog(ctx context.Context, log *entity.TokenLog) error
 }
 
-type authRepo struct {
-	DB *gorm.DB
+type authRepoImpl struct {
+	db *gorm.DB
 }
 
-func NewAuthRepo(DB *gorm.DB) AuthRepo {
-	return &authRepo{DB: DB}
+func newAuthRepo(DB *gorm.DB) authRepo {
+	return &authRepoImpl{db: DB}
 }
 
-func (r *authRepo) GetUser(ctx context.Context, username string) (*entity.User, error) {
+func (r *authRepoImpl) getUser(ctx context.Context, username string) (*entity.User, error) {
 	user := new(entity.User)
-	tx := r.DB.WithContext(ctx).First(user, "username = ?", username)
+	tx := r.db.WithContext(ctx).First(user, "username = ?", username)
 	if err := tx.Error; err != nil {
 		log.Printf("[repository error] error get user: %v", err)
 		return nil, errors.New("error get user")
@@ -33,8 +33,8 @@ func (r *authRepo) GetUser(ctx context.Context, username string) (*entity.User, 
 	return user, nil
 }
 
-func (r *authRepo) InsertTokenLog(ctx context.Context, tokenLog *entity.TokenLog) error {
-	tx := r.DB.WithContext(ctx).Create(tokenLog)
+func (r *authRepoImpl) insertTokenLog(ctx context.Context, tokenLog *entity.TokenLog) error {
+	tx := r.db.WithContext(ctx).Create(tokenLog)
 	if err := tx.Error; err != nil {
 		log.Printf("[repository error] error insert token log: %v,", err)
 		return errors.New("error insert token log")

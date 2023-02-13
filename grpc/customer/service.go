@@ -2,71 +2,79 @@ package main
 
 import (
 	"context"
-	"errors"
-	"log"
-
 	pb "microservice-with-grpc/gen/customer/v1"
 	"microservice-with-grpc/internal"
 )
 
-type CustomerService interface {
-	AccountCreation(ctx context.Context, req *pb.AccountCreationRequest) error
-	AccountInquiry(ctx context.Context, accountNumber string) (*Account, error)
+type customerService interface {
+	accountCreation(ctx context.Context, req *pb.AccountCreationRequest) error
+	accountInquiry(ctx context.Context, accountNumber string) (*account, error)
 }
 
-type customerService struct {
-	Repo CustomerRepo
+type customerServiceImpl struct {
+	repo customerRepo
 }
 
-func NewCustomerService(repo CustomerRepo) CustomerService {
-	return &customerService{Repo: repo}
+func newCustomerService(repo customerRepo) customerService {
+	return &customerServiceImpl{repo: repo}
 }
 
-func (s *customerService) AccountCreation(ctx context.Context, req *pb.AccountCreationRequest) error {
-	// create new cif and register account.
-	customer := BuildCustomer(req)
-	newCif, err := s.createCif(ctx)
+func (s *customerServiceImpl) accountCreation(ctx context.Context, req *pb.AccountCreationRequest) error {
+	err := s.createCustomerWithAccount(ctx, req)
 	if err != nil {
-		log.Printf("[service error] account creation error: %v", err)
-		return errors.New("account creation error")
+		return err
 	}
-	customer.Cif = newCif
-	err = s.Repo.CreateCustomer(ctx, customer)
-	if err != nil {
-		log.Printf("[service error] account creation error: %v", err)
-		return errors.New("account creation error")
-	}
-	// create new account number for new account cif.
-	newAccountNumber, err := s.createAccountNumber(ctx, internal.SavingAccount)
-	if err != nil {
-		log.Printf("[service error] account creation error: %v", err)
-		return errors.New("account creation error")
-	}
-	account := BuildAccount(customer.Cif, newAccountNumber, internal.SavingAccount)
-	err = s.Repo.CreateAccount(ctx, account)
-	if err != nil {
-		log.Printf("[service error] account creation error: %v", err)
-		return errors.New("account creation error")
-	}
-	// should return no error if account creation is successful.
 	return nil
 }
 
-func (s *customerService) createCif(ctx context.Context) (string, error) {
-	lastCif, err := s.Repo.GetLastCif(ctx)
+func (s *customerServiceImpl) createCustomerWithAccount(ctx context.Context, req *pb.AccountCreationRequest) error {
+	customer, err := s.createCustomerWithCif(ctx, req)
 	if err != nil {
-		log.Printf("[service error] create new cif error: %v", err)
-		return "", errors.New("create new cif error")
+		return err
+	}
+	err = s.createCustomerCifAccount(ctx, customer, internal.SavingAccount)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *customerServiceImpl) createCustomerWithCif(ctx context.Context, req *pb.AccountCreationRequest) (*customer, error) {
+	customer := buildCustomer(req)
+	newCif, err := s.createCif(ctx)
+	if err != nil {
+		return nil, err
+	}
+	customer.Cif = newCif
+	return customer, nil
+}
+
+func (s *customerServiceImpl) createCif(ctx context.Context) (string, error) {
+	lastCif, err := s.repo.getLastCif(ctx)
+	if err != nil {
+		return "", err
 	}
 	newCif := internal.BuildNewCif(lastCif)
 	return newCif, nil
 }
 
-func (s *customerService) createAccountNumber(ctx context.Context, accType internal.AccountType) (string, error) {
-	lastAccountNumber, err := s.Repo.GetLastAccount(ctx)
+func (s *customerServiceImpl) createCustomerCifAccount(ctx context.Context, customer *customer, accountType internal.AccountType) error {
+	newAccountNumber, err := s.createAccountNumber(ctx, accountType)
 	if err != nil {
-		log.Printf("[service error] create new account number error: %v", err)
-		return "", errors.New("create new account number error")
+		return err
+	}
+	account := buildAccount(customer.Cif, newAccountNumber, accountType)
+	err = s.repo.createAccount(ctx, account)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *customerServiceImpl) createAccountNumber(ctx context.Context, accType internal.AccountType) (string, error) {
+	lastAccountNumber, err := s.repo.getLastAccount(ctx)
+	if err != nil {
+		return "", err
 	}
 	var newAccount string
 	switch accType {
@@ -80,16 +88,22 @@ func (s *customerService) createAccountNumber(ctx context.Context, accType inter
 	return newAccount, nil
 }
 
-func (s *customerService) AccountInquiry(ctx context.Context, accountNumber string) (*Account, error) {
-	account, err := s.Repo.InquiryByAccountNumber(ctx, accountNumber)
+func (s *customerServiceImpl) accountInquiry(ctx context.Context, accountNumber string) (*account, error) {
+	account, err := s.inquiryCustomerWithAccount(ctx, accountNumber)
 	if err != nil {
-		log.Printf("[service error] inquiry account error: %v", err)
-		return nil, errors.New("inquiry account error")
+		return nil, err
 	}
-	customer, err := s.Repo.GetCustomerByAccountNumber(ctx, accountNumber)
+	return account, nil
+}
+
+func (s *customerServiceImpl) inquiryCustomerWithAccount(ctx context.Context, accountNumber string) (*account, error) {
+	account, err := s.repo.inquiryByAccountNumber(ctx, accountNumber)
 	if err != nil {
-		log.Printf("[service error] inquiry account error: %v", err)
-		return nil, errors.New("inquiry account error")
+		return nil, err
+	}
+	customer, err := s.repo.getCustomerByAccountNumber(ctx, accountNumber)
+	if err != nil {
+		return nil, err
 	}
 	account.Customer = customer
 	return account, nil

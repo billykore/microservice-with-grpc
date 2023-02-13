@@ -668,10 +668,10 @@ var file_pb_customer_v1_customer_proto_depIdxs = []int32{
 	1, // 1: customer.AccountCreationRequest.religion:type_name -> customer.Religion
 	2, // 2: customer.AccountCreationRequest.marriage_status:type_name -> customer.MarriageStatus
 	3, // 3: customer.AccountCreationRequest.citizen:type_name -> customer.Citizen
-	4, // 4: customer.Customer.AccountCreation:input_type -> customer.AccountCreationRequest
-	6, // 5: customer.Customer.AccountInquiry:input_type -> customer.InquiryRequest
-	5, // 6: customer.Customer.AccountCreation:output_type -> customer.AccountCreationResponse
-	7, // 7: customer.Customer.AccountInquiry:output_type -> customer.InquiryResponse
+	4, // 4: customer.Customer.accountCreation:input_type -> customer.AccountCreationRequest
+	6, // 5: customer.Customer.accountInquiry:input_type -> customer.InquiryRequest
+	5, // 6: customer.Customer.accountCreation:output_type -> customer.AccountCreationResponse
+	7, // 7: customer.Customer.accountInquiry:output_type -> customer.InquiryResponse
 	6, // [6:8] is the sub-list for method output_type
 	4, // [4:6] is the sub-list for method input_type
 	4, // [4:4] is the sub-list for extension type_name

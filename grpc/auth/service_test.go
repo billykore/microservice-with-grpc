@@ -16,7 +16,7 @@ type authRepoMock struct {
 	mock.Mock
 }
 
-func (m *authRepoMock) GetUser(ctx context.Context, username string) (*entity.User, error) {
+func (m *authRepoMock) getUser(ctx context.Context, username string) (*entity.User, error) {
 	args := m.Mock.Called(ctx, username)
 	if args.Get(0) == false && args.Get(1) != nil {
 		return nil, args.Get(1).(error)
@@ -24,7 +24,7 @@ func (m *authRepoMock) GetUser(ctx context.Context, username string) (*entity.Us
 	return args.Get(0).(*entity.User), nil
 }
 
-func (m *authRepoMock) InsertTokenLog(ctx context.Context, tokenLog *entity.TokenLog) error {
+func (m *authRepoMock) insertTokenLog(ctx context.Context, tokenLog *entity.TokenLog) error {
 	args := m.Mock.Called(ctx, tokenLog)
 	if args.Get(0) == nil {
 		return args.Get(0).(error)
@@ -40,7 +40,7 @@ func TestAuthService_GetToken(t *testing.T) {
 
 	type args struct {
 		ctx context.Context
-		req *Request
+		req *request
 	}
 
 	type expectation struct {
@@ -63,10 +63,10 @@ func TestAuthService_GetToken(t *testing.T) {
 			},
 			args: args{
 				ctx: context.Background(),
-				req: &Request{
-					Username:  "user",
-					Password:  "password",
-					GrantType: "password",
+				req: &request{
+					username:  "user",
+					password:  "password",
+					grantType: "password",
 				},
 			},
 			expected: expectation{
@@ -85,10 +85,10 @@ func TestAuthService_GetToken(t *testing.T) {
 			},
 			args: args{
 				ctx: context.Background(),
-				req: &Request{
-					Username:  "userNotExist",
-					Password:  "duh",
-					GrantType: "password",
+				req: &request{
+					username:  "userNotExist",
+					password:  "duh",
+					grantType: "password",
 				},
 			},
 			expected: expectation{
@@ -101,9 +101,9 @@ func TestAuthService_GetToken(t *testing.T) {
 	for scenario, test := range tests {
 		t.Run(scenario, func(t *testing.T) {
 			repo := &authRepoMock{Mock: mock.Mock{}}
-			repo.On("GetUser", test.args.ctx, test.args.req.Username).Return(test.repoOut.user, test.repoOut.err)
-			service := NewAuthService(repo)
-			out, err := service.GetToken(test.args.ctx, test.args.req)
+			repo.On("getUser", test.args.ctx, test.args.req.username).Return(test.repoOut.user, test.repoOut.err)
+			service := newAuthService(repo)
+			out, err := service.getToken(test.args.ctx, test.args.req)
 			assert.Equal(t, test.expected.err, err)
 			if out != nil {
 				assert.NotEmpty(t, out.Token)
@@ -117,7 +117,7 @@ func TestAuthService_GetToken(t *testing.T) {
 func TestAuthServiceIntegrationTest_GetToken(t *testing.T) {
 	type args struct {
 		ctx context.Context
-		req *Request
+		req *request
 	}
 
 	type expectation struct {
@@ -132,10 +132,10 @@ func TestAuthServiceIntegrationTest_GetToken(t *testing.T) {
 		"success": {
 			args: args{
 				ctx: context.Background(),
-				req: &Request{
-					Username:  "user",
-					Password:  "password",
-					GrantType: "password",
+				req: &request{
+					username:  "user",
+					password:  "password",
+					grantType: "password",
 				},
 			},
 			expected: expectation{
@@ -150,10 +150,10 @@ func TestAuthServiceIntegrationTest_GetToken(t *testing.T) {
 		"user_not_found": {
 			args: args{
 				ctx: context.Background(),
-				req: &Request{
-					Username:  "userNotExist",
-					Password:  "duh",
-					GrantType: "password",
+				req: &request{
+					username:  "userNotExist",
+					password:  "duh",
+					grantType: "password",
 				},
 			},
 			expected: expectation{
@@ -164,10 +164,10 @@ func TestAuthServiceIntegrationTest_GetToken(t *testing.T) {
 		"wrong_password": {
 			args: args{
 				ctx: context.Background(),
-				req: &Request{
-					Username:  "user",
-					Password:  "wrongPassword",
-					GrantType: "password",
+				req: &request{
+					username:  "user",
+					password:  "wrongPassword",
+					grantType: "password",
 				},
 			},
 			expected: expectation{
@@ -178,10 +178,10 @@ func TestAuthServiceIntegrationTest_GetToken(t *testing.T) {
 		"invalid_grant_type": {
 			args: args{
 				ctx: context.Background(),
-				req: &Request{
-					Username:  "user",
-					Password:  "password",
-					GrantType: "client_credentials",
+				req: &request{
+					username:  "user",
+					password:  "password",
+					grantType: "client_credentials",
 				},
 			},
 			expected: expectation{
@@ -199,14 +199,14 @@ func TestAuthServiceIntegrationTest_GetToken(t *testing.T) {
 		DatabaseName:     "grpc_auth_service",
 	})
 	assert.NotNil(t, db)
-	repo := NewAuthRepo(db)
+	repo := newAuthRepo(db)
 	assert.NotNil(t, repo)
-	service := NewAuthService(repo)
+	service := newAuthService(repo)
 	assert.NotNil(t, service)
 
 	for scenario, test := range tests {
 		t.Run(scenario, func(t *testing.T) {
-			out, err := service.GetToken(test.args.ctx, test.args.req)
+			out, err := service.getToken(test.args.ctx, test.args.req)
 			assert.Equal(t, test.expected.err, err)
 			if out != nil {
 				assert.NotEmpty(t, out.Token)

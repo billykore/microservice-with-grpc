@@ -18,10 +18,10 @@ func TestCustomerRepo_CreateCustomer(t *testing.T) {
 		DatabaseName:     "grpc_microservices",
 	})
 	assert.NotNil(t, db)
-	err := database.Migrate(db, &Customer{})
+	err := database.Migrate(db, &customer{})
 
-	repo := NewCustomerRepo(db)
-	err = repo.CreateCustomer(context.Background(), &Customer{
+	repo := newCustomerRepo(db)
+	err = repo.createCustomer(context.Background(), &customer{
 		Nik:            "0101010505970001",
 		Name:           "NI LUH PUTU GIRI GITA SARASWATI",
 		Pob:            "BAJAWA",
@@ -46,10 +46,10 @@ func TestCustomerRepo_GetLastCif(t *testing.T) {
 		DatabaseName:     "grpc_microservices",
 	})
 	assert.NotNil(t, db)
-	err := database.Migrate(db, &Customer{})
+	err := database.Migrate(db, &customer{})
 
-	repo := NewCustomerRepo(db)
-	lastCif, err := repo.GetLastCif(context.Background())
+	repo := newCustomerRepo(db)
+	lastCif, err := repo.getLastCif(context.Background())
 	assert.NotEmpty(t, lastCif)
 	assert.NoError(t, err)
 }
@@ -63,10 +63,10 @@ func TestCustomerRepo_CreateAccount(t *testing.T) {
 		DatabaseName:     "grpc_microservices",
 	})
 	assert.NotNil(t, db)
-	err := database.Migrate(db, &Customer{})
+	err := database.Migrate(db, &customer{})
 
-	repo := NewCustomerRepo(db)
-	err = repo.CreateAccount(context.Background(), &Account{
+	repo := newCustomerRepo(db)
+	err = repo.createAccount(context.Background(), &account{
 		Cif:              "0000000001",
 		AccountNumber:    "001001000001300",
 		Type:             "S",
@@ -91,11 +91,11 @@ func TestCustomerRepo_InquiryByAccountNumber(t *testing.T) {
 	})
 	assert.NotNil(t, db)
 
-	repo := NewCustomerRepo(db)
-	account, err := repo.InquiryByAccountNumber(context.Background(), "001001000002300")
+	repo := newCustomerRepo(db)
+	acc, err := repo.inquiryByAccountNumber(context.Background(), "001001000002300")
 	assert.NoError(t, err)
-	assert.NotNil(t, account)
-	assert.IsType(t, &Account{}, account)
+	assert.NotNil(t, acc)
+	assert.IsType(t, &account{}, acc)
 }
 
 func TestCustomerRepo_GetCustomerByAccountNumber(t *testing.T) {
@@ -108,10 +108,10 @@ func TestCustomerRepo_GetCustomerByAccountNumber(t *testing.T) {
 	})
 	assert.NotNil(t, db)
 
-	repo := NewCustomerRepo(db)
-	customer, err := repo.GetCustomerByAccountNumber(context.Background(), "001001000002300")
+	repo := newCustomerRepo(db)
+	cust, err := repo.getCustomerByAccountNumber(context.Background(), "001001000002300")
 	assert.NoError(t, err)
-	assert.NotNil(t, customer)
-	assert.IsType(t, &Customer{}, customer)
-	assert.Equal(t, "FLORENCE FEDORA AGUSTINA", customer.Name)
+	assert.NotNil(t, cust)
+	assert.IsType(t, &customer{}, cust)
+	assert.Equal(t, "FLORENCE FEDORA AGUSTINA", cust.Name)
 }
