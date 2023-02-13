@@ -4,6 +4,8 @@ WORKDIR $GOPATH/src/microservice-with-grpc
 
 COPY pb/transaction/v1 ./pb/transaction/v1
 COPY gen/transaction/v1 ./gen/transaction/v1
+COPY pb/customer/v1 ./pb/customer/v1
+COPY gen/customer/v1 ./gen/customer/v1
 COPY grpc/transaction ./grpc/transaction
 COPY database ./database
 COPY entity ./entity

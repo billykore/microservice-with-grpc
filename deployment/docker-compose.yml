@@ -17,18 +17,28 @@ services:
       - grpc-microservices-net
   payment-grpc-server:
     container_name: payment-grpc-server
-    image: payment-grpc-app:1.0.0
+    image: payment-grpc-app:1.1.0
     ports:
       - "50053:50053"
     networks:
       - grpc-microservices-net
+  transaction-grpc-server:
+    container_name: transaction-grpc-server
+    image: transaction-grpc-app:1.0.0
+    ports:
+      - "50055:50055"
+    networks:
+      - grpc-microservices-net
   grpc-rest-api:
     container_name: grpc-rest-api
-    image: grpc-rest-api:1.1.0
+    image: rest-api-app:1.0.0
     ports:
       - "8080:8080"
     depends_on:
+      - auth-grpc-server
       - customer-grpc-server
+      - payment-grpc-server
+      - transaction-grpc-server
     networks:
       - grpc-microservices-net
 
