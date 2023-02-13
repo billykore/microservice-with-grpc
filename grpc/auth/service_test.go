@@ -3,13 +3,13 @@ package main
 import (
 	"context"
 	"errors"
-	"microservice-with-grpc/entity"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 
 	"microservice-with-grpc/database"
+	"microservice-with-grpc/entity"
 )
 
 type authRepoMock struct {
